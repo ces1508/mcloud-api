@@ -14,7 +14,7 @@ let db = new Db(config.db)
 if (env === 'test') {
   db = new DbStub()
 }
-hash.set('GET /images/list', async function allImages (req, res, params) {
+hash.set('GET /list', async function allImages (req, res, params) {
   let user = null
   try {
     let token = await utils.extractToken(req)
@@ -27,7 +27,7 @@ hash.set('GET /images/list', async function allImages (req, res, params) {
   await db.disconnet()
   send(res, 200, images)
 })
-hash.set('GET /images/:id', async function getImage (req, res, params) {
+hash.set('GET /:id', async function getImage (req, res, params) {
   let id = params.id
   await db.connect()
   let image = await db.find('images', id)
@@ -35,7 +35,7 @@ hash.set('GET /images/:id', async function getImage (req, res, params) {
   send(res, 200, image)
 })
 
-hash.set('POST /images/upload', async function createImage (req, res, params) {
+hash.set('POST /create', async function createImage (req, res, params) {
   let image = await json(req)
   try {
     let token = await utils.extractToken(req)

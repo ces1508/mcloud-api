@@ -7,7 +7,7 @@ import config from './config'
 import DbStub from './test/stub/db'
 import utils from './lib/utils'
 // const env = process.env.NODE_ENV || 'test'
-const env = 'proudction'
+const env = 'production'
 const hash = httpHash()
 let db = new Db(config.db)
 
@@ -15,7 +15,7 @@ if (env === 'test') {
   db = new DbStub()
 }
 
-hash.set('POST /create', async function create (req, res, params) {
+hash.set('POST /create', async function createSms (req, res, params) {
   let data = await json(req)
   try {
     let token = await utils.extractToken(req)
@@ -25,13 +25,16 @@ hash.set('POST /create', async function create (req, res, params) {
     return send(res, 401, e.message)
   }
   await db.connect()
-  let result = await db.create('databases', data)
+  let result = await db.create('campaingSms', data)
   await db.disconnet()
   send(res, 201, result)
 })
 
-hash.set('GET /', async function all (req, res, params) {
+hash.set('GET /page/:page', async function allSms (req, res, params) {
   let user = null
+  let skip = params.page || 0
+  console.log(skip)
+  skip = parseInt(skip)
   try {
     let token = await utils.extractToken(req)
     user = await utils.verifyToken(token, config.secret)
@@ -39,57 +42,69 @@ hash.set('GET /', async function all (req, res, params) {
     return send(res, 401, 'unAuthorized')
   }
   await db.connect()
-  let result = await db.all('databases', user.id, 'userId', 0)
-  await db.disconnet()
-  send(res, 200, result)
+  try {
+    let result = await db.allCampaing('campaingSms', user.id, skip)
+    await db.disconnet()
+    send(res, 200, result)
+  } catch (e) {
+    console.error(e)
+    return send(res,500, e)
+  }
 })
-hash.set('PATCH /:id', async function update (req, res, params) {
+hash.set('PATCH /:id', async function updateSms (req, res, params) {
   let user = null
   let id = params.id
   let data = await json(req)
-  await db.connect()
   try {
     let token = await utils.extractToken(req)
     user = await utils.verifyToken(token, config.secret)
-    let database = await db.find('databases', id)
-    await utils.checkUser(user, database)
+    let campaing = db.find('campaingSms', id)
+    await utils.checkUser(user, data)
   } catch (e) {
-    await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
-  let result = await db.update('databases', id, data)
-  send(res, 200, result)
-})
-hash.set('GET /:id', async function find (req, res, params) {
-  let id = params.id
-  let result = null
   await db.connect()
+  let campaing = await db.update('campaingSms', id, data)
+  send(res, 200, campaing)
+})
+
+hash.set('GET /:id/page/:page', async function findSms (req, res, params) {
+  let id = params.id
+  console.log(id)
+  let campaing = null
+  let skip = params.page || 0
+  console.log(skip)
   try {
+    await db.connect()
     let token = await utils.extractToken(req)
+    console.log(token)
     let user = await utils.verifyToken(token, config.secret)
-    result = await db.find('databases', id)
+    console.log(user)
+    let result = await db.find('campaingSms', id)
+    console.log(result)
     await utils.checkUser(user, result)
   } catch (e) {
+    console.log(e.message)
      await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
-  result = await db.find('databases', id)
+  campaing = await db.all('historySms', 'campaingId', id, skip)
   await db.disconnet()
   send(res, 200, result)
 })
-hash.set('DELETE /:id', async function destroy (req, res, params) {
+hash.set('DELETE /:id', async function destroySms (req, res, params) {
   let id = params.id
   await db.connect()
   try {
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
-    let database = await db.find('databases', id)
-    await utils.checkUser(user, database)
+    let campaing = await db.find('campaingSms', id)
+    await utils.checkUser(user, campaing)
   } catch (e) {
     await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
-  let result = await db.destroyDatabase(id)
+  let result = await db.destroy('campaingSms', id)
   await db.disconnet()
   send(res, 200, result)
 })
