@@ -35,7 +35,11 @@ hash.set('POST /send/', async function sendSms (req, res, params) {
         let contacts  = await sms.send(id)
         return send(res, 200, {data: 'campaña enviada'})
       } else {
-        return send(res, 200, {data: 'aun no soportamos las campañas custom'})
+        try {
+          let contacts = await sms.sendCustom(id)
+          return send(res, 200, {data: 'campaña enviada'})
+        } catch (e) {
+        }
       }
     }
   } catch (e) {

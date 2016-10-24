@@ -30,8 +30,10 @@ hash.set('POST /create', async function create (req, res, params) {
   send(res, 201, result)
 })
 
-hash.set('GET /', async function all (req, res, params) {
+hash.set('GET /page/:page', async function all (req, res, params) {
   let user = null
+  let skip = params.page || 0
+  skip = parseInt(skip)
   try {
     let token = await utils.extractToken(req)
     user = await utils.verifyToken(token, config.secret)
@@ -39,9 +41,25 @@ hash.set('GET /', async function all (req, res, params) {
     return send(res, 401, 'unAuthorized')
   }
   await db.connect()
-  let result = await db.all('databases', user.id, 'userId', 0)
+  let result = await db.all('databases', user.id, 'userId', skip, 'createdAt')
   await db.disconnet()
   send(res, 200, result)
+})
+hash.set('POST /filter', async function filterDatabases (req, res, params) {
+  let user = null
+  let data = await json(req)
+  try {
+    await db.connect()
+    let token = await utils.extractToken(req)
+    user = await utils.verifyToken(token, config.secret)
+    let value = data.name.toLowerCase()
+    await db.connect()
+    let response = await db.customFind('databases', user.id, 'userId', 'name', value, {})
+    await db.disconnet()
+    send (res, 200, response)
+  } catch (e) {
+    return send (res,500, e.message)
+  }
 })
 hash.set('PATCH /:id', async function update (req, res, params) {
   let user = null

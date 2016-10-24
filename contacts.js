@@ -44,14 +44,14 @@ hash.set('GET /contacts/:databaseId/page/:skip', async function all (req, res, p
   skip = parseInt(skip)
   try {
     await db.connect()
-    let result = await db.all('contacts', databaseId, 'databaseId', skip)
+    let result = await db.all('contacts', databaseId, 'databaseId', skip, 'firstName')
     let database = await db.find('databases', databaseId)
     result.database = database.name
-    await db.disconnet()
     send(res, 200, result)
 
   } catch (e) {
-    return send(res, 500, {error: 'ocurrio un error e'})
+    console.error(e.message)
+    return send(res, 500, {error: e.message})
   }
 })
 hash.set('PATCH /:id', async function update (req, res, params) {
@@ -124,20 +124,13 @@ hash.set('POST /filter/:databaseId/', async function search (req, res, params) {
   let data = await json(req)
   await db.connect()
   try {
-    if (data.row != 'phone'){
       let filter = {
       databaseId: databaseId
       }
       let value = data.value.toLowerCase()
-      let contacts = await db.customFind('contacts', data.row, value, filter)
+      let contacts = await db.customFind('contacts', databaseId,  'databaseId', data.row, value, filter)
       await db.disconnet()
       send(res, 200, contacts)
-
-    } else {
-      let number = data.value
-      let contacts = await db.findContactsByNumber(databaseId, number)
-      send(res,200, contacts)
-    }
   } catch (e) {
     return send(res, 404, {error: 'not match'})
   }

@@ -23,7 +23,7 @@ hash.set('GET /list', async function allImages (req, res, params) {
     return send(res, 401, 'unauthorized')
   }
   await db.connect()
-  let images = await db.all('images', user, 0, 1)
+  let images = await db.all('images', user, 0, 'cretedAt')
   await db.disconnet()
   send(res, 200, images)
 })
