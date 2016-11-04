@@ -68,6 +68,21 @@ hash.set('POST /email/', async function sendCampaingSms (req, res, params) {
   }
 })
 
+hash.set('POST /send', async function sendCampaingEmail (req, res, params) {
+    let data = await json(req)
+    let campaing = null
+    await db.connect()
+    try {
+      let token = await utils.extractToken(req)
+      user = await utils.verifyToken(token, config.secret)
+      campaing = await db.find('campaingEmail', data.campaing)
+      await utils.checkUser(user, campaing)
+    } catch (e) {
+      await db.disconnet()
+      return send(res, 401, 'Unauthorized')
+    }
+})
+
 export default async function main (req, res) {
   let  { method, url } = req
   let match = hash.get(`${method.toUpperCase()} ${url}`)

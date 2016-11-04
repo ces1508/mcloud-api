@@ -7,7 +7,7 @@ import config from './config'
 import DbStub from './test/stub/db'
 import utils from './lib/utils'
 // const env = process.env.NODE_ENV || 'test'
-const env = 'test'
+const env = 'production'
 const hash = httpHash()
 let db = new Db(config.db)
 
@@ -20,8 +20,9 @@ hash.set('POST /create', async function create (req, res, params) {
   try {
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
-    await utils.checkUser(user, data)
+    //await utils.checkUser(user, data)
   } catch (e) {
+    console.error(e)
     return send(res, 401, 'unAuthorized')
   }
   await db.connect()
@@ -30,8 +31,10 @@ hash.set('POST /create', async function create (req, res, params) {
   send(res, 201, result)
 })
 
-hash.set('GET /', async function all (req, res, params) {
+hash.set('GET /page/:page', async function allTemplates (req, res, params) {
   let user = null
+  let skip = params.page || 0
+  skip = parseInt(skip)
   try {
     let token = await utils.extractToken(req)
     user = await utils.verifyToken(token, config.secret)
@@ -39,7 +42,7 @@ hash.set('GET /', async function all (req, res, params) {
     return send(res, 401, 'unAuthorized')
   }
   await db.connect()
-  let result = await db.all('templateEmails', user.userId, 0, 1)
+  let result = await db.allTemplateEmails( user.userId, skip)
   await db.disconnet()
   send(res, 200, result)
 })
@@ -63,15 +66,17 @@ hash.set('PATCH /:id', async function update (req, res, params) {
 hash.set('GET /:id', async function find (req, res, params) {
   let id = params.id
   let result = null
+
+  await db.connect()
   try {
     let token = await utils.extractToken(req)
-    await utils.verifyToken(token, config.secret)
+    let user = await utils.verifyToken(token, config.secret)
+    result = await db.find('templateEmails', id)
+    await db.disconnet()
+    await utils.checkUser(user, result)
   } catch (e) {
     return send(res, 401, 'unAuthorized')
   }
-  await db.connect()
-  result = await db.find('templateEmails', id)
-  await db.disconnet()
   send(res, 200, result)
 })
 hash.set('DELETE /:id', async function destroy (req, res, params) {
