@@ -81,6 +81,13 @@ hash.set('POST /send', async function sendCampaingEmail (req, res, params) {
       await db.disconnet()
       return send(res, 401, 'Unauthorized')
     }
+    try {
+      await mail.sendMultiple(campaing.id)
+      send(res, 200, {data: 'camapaign sended'})
+    }
+    catch (e) {
+      console.error(e.message)
+    }
 })
 
 export default async function main (req, res) {

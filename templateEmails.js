@@ -17,15 +17,17 @@ if (env === 'test') {
 
 hash.set('POST /create', async function create (req, res, params) {
   let data = await json(req)
+  let user = null
   try {
     let token = await utils.extractToken(req)
-    let user = await utils.verifyToken(token, config.secret)
+    user = await utils.verifyToken(token, config.secret)
     //await utils.checkUser(user, data)
   } catch (e) {
     console.error(e)
     return send(res, 401, 'unAuthorized')
   }
   await db.connect()
+  data.userId = user.id
   let result = await db.create('templateEmails', data)
   await db.disconnet()
   send(res, 201, result)
@@ -42,7 +44,7 @@ hash.set('GET /page/:page', async function allTemplates (req, res, params) {
     return send(res, 401, 'unAuthorized')
   }
   await db.connect()
-  let result = await db.allTemplateEmails( user.userId, skip)
+  let result = await db.allTemplateEmails( user.id, skip)
   await db.disconnet()
   send(res, 200, result)
 })
