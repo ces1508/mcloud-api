@@ -5,7 +5,20 @@
   "main": "index.js",
   "scripts": {
     "lint": "standart",
-    "test": "npm run lint && ava --require babel-register test/**-test.js"
+    "test": "npm run lint && ava --require babel-register test/**-test.js",
+    "users": "micro -p5000 users.js",
+    "auth": "micro -p6000 auth.js",
+    "databases": "micro -p5005  databases.js",
+    "contacts": "micro -p5001 contacts.js",
+    "templateEmails": "micro -p5100 templateEmails.js",
+    "campaign-emails": "micro -p4200 campaingEmails.js",
+    "upload-images": "micro -p5003 images.js",
+    "hook": "micro -p5000 hook.js ",
+    "send-Emails": "micro -p4100 sendEmails.js",
+    "campaign-sms": "micro -p5002 campaignSms.js",
+    "send-sms": "micro -p4000 sendSms.js",
+    "reports": "micro -p5004 reports.js",
+    "submit": "npm pack && cp mepscloud-api-1.0.0.tgz ../Ansible_MepsCloud/roles/mepscloud_api/files && tar xvfz mepscloud-api-1.0.0.tgz && mv package mepscloud-api"
   },
   "standart": {
     "parser": "babel-eslint"
