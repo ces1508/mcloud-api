@@ -7,14 +7,14 @@ import config from './config'
 import DbStub from './test/stub/db'
 import utils from './lib/utils'
 // const env = process.env.NODE_ENV || 'test'
-const env = 'test'
+const env = 'production'
 const hash = httpHash()
 let db = new Db(config.db)
 
 if (env === 'test') {
   db = new DbStub()
 }
-hash.set('GET /list', async function allImages (req, res, params) {
+hash.set('GET /list-images/page/:page', async function allImages (req, res, params) {
   let user = null
   try {
     let token = await utils.extractToken(req)
@@ -23,7 +23,7 @@ hash.set('GET /list', async function allImages (req, res, params) {
     return send(res, 401, 'unauthorized')
   }
   await db.connect()
-  let images = await db.all('images', user, 0, 'cretedAt')
+  let images = await db.all('images', user.id, 'userId', 0, 'createdAt')
   await db.disconnet()
   send(res, 200, images)
 })
@@ -39,13 +39,16 @@ hash.set('POST /create', async function createImage (req, res, params) {
   let image = await json(req)
   try {
     let token = await utils.extractToken(req)
-    let encoded = await utils.verifyToken(token, config.secret)
-    await utils.checkUser(encoded, image)
+    let user = await utils.verifyToken(token, config.secret)
+    image.userId = user.id
+    //await utils.checkUser(encoded, image)
   } catch (e) {
+    console.error(e.message)
     return send(res, 401, { error: 'unauthorized' })
   }
   await db.connect()
-  let created = await db.create(image)
+  let created = await db.create('images', image)
+  delete created.userId
   await db.disconnet()
   send(res, 201, created)
 })

@@ -14,13 +14,14 @@ if (env === 'test') {
   db = new DbStub()
 }
 
-hash.set('POST /create', async function createSms (req, res, params) {
+hash.set('POST /create', async function createCampaingSms (req, res, params) {
   let data = await json(req)
   try {
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
     data.userId = user.id
   } catch (e) {
+    console.error(e.message)
     return send(res, 401, e.message)
   }
   await db.connect()
@@ -35,7 +36,7 @@ hash.set('POST /create', async function createSms (req, res, params) {
   send(res, 201, result)
 })
 
-hash.set('GET /page/:page', async function allCampaingSms (req, res, params) {
+hash.set('GET /page/:page', async function allCampaingEmails (req, res, params) {
   let user = null
   let skip = params.page || 0
   skip = parseInt(skip)

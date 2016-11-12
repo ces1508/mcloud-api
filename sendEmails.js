@@ -51,12 +51,12 @@ hash.set('POST /email/', async function sendCampaingSms (req, res, params) {
      await utils.checkUser(user.id, campaing.userId)
     let to = [
       {
-        to:[
+        'to':[
           {
-            email: 'ces1508@gmail.com'
+            'email': 'ces1508@gmail.com'
           },
           {
-            email: 'ces_1508@hotmail.com'
+            'email': 'ces_1508@hotmail.com'
           }
         ]
       }
@@ -74,11 +74,12 @@ hash.set('POST /send', async function sendCampaingEmail (req, res, params) {
     await db.connect()
     try {
       let token = await utils.extractToken(req)
-      user = await utils.verifyToken(token, config.secret)
-      campaing = await db.find('campaingEmail', data.campaing)
+      let user = await utils.verifyToken(token, config.secret)
+      campaing = await db.find('campaingEmails', data.campaing)
       await utils.checkUser(user, campaing)
     } catch (e) {
       await db.disconnet()
+      console.error(e.message)
       return send(res, 401, 'Unauthorized')
     }
     try {
