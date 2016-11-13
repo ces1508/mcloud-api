@@ -17,6 +17,7 @@ hash.set('GET /', async function authenticate (req, res, params) {
   send(res, 200, 'server is ready')
 })
 hash.set('POST /auth', async function authenticate (req, res, params) {
+  console.log('request in auth')
   await db.connect()
   let user = await json(req)
   let email = user.email
