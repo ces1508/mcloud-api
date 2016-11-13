@@ -18,7 +18,7 @@
     "campaign-sms": "micro -p5002 campaignSms.js",
     "send-sms": "micro -p4000 sendSms.js",
     "reports": "micro -p5004 reports.js",
-    "submit": "npm pack && cp mepscloud-api-1.0.0.tgz ../Ansible_MepsCloud/roles/mepscloud_api/files && tar xvfz mepscloud-api-1.0.0.tgz && mv package mepscloud-api"
+    "submit": "npm pack && cp mepscloud-api-1.0.0.tgz ../../Ansible_MepsCloud/roles/mepscloud_api/files && tar xvfz mepscloud-api-1.0.0.tgz && mv package mepscloud-api"
   },
   "standart": {
     "parser": "babel-eslint"
