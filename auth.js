@@ -33,8 +33,8 @@ hash.set('POST /auth', async function authenticate (req, res, params) {
     name: data.username,
     id: data.id
   }
-  console.log(config.secret)
   console.log(config)
+  console.log(config.secret)
   console.log(payload)
 
   try {
