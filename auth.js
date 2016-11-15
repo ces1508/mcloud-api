@@ -34,7 +34,11 @@ hash.set('POST /auth', async function authenticate (req, res, params) {
     id: data.id
   }
   console.log(payload)
-  let token = await utils.signToken(payload, config.secret)
+  try {
+    let token = await utils.signToken(payload, config.secret)
+  } catch (e) {
+    return send(res, 500, e.message)
+  }
   console.log(token)
   await db.disconnet()
   send(res, 200, token)
