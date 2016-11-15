@@ -4,5 +4,5 @@ export default {
     port: 28015,
     db: 'mepscloud'
   },
-  secret: process.env.MEPSCLOUD_SECRET || 'm3pscloud'
+  secret: process.env.MEPSCLOUD_SECRET
 }
