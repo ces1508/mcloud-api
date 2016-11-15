@@ -22,6 +22,7 @@ hash.set('POST /auth', async function authenticate (req, res, params) {
   let user = await json(req)
   let email = user.email
   let auth = await db.authenticate(user.email, user.password)
+  console.log(auth)
   if (!auth) {
     await db.disconnet()
     return send(res, 401, { error: 'invalid crendentials' })
@@ -33,6 +34,7 @@ hash.set('POST /auth', async function authenticate (req, res, params) {
     id: data.id
   }
   let token = await utils.signToken(payload, config.secret)
+  console.log(token)
   await db.disconnet()
   send(res, 200, token)
 })
