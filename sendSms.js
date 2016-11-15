@@ -79,6 +79,7 @@ hash.set('POST /send/test', async function testCampaing (req, res, params) {
     let sendTest = await sms.sendTest(text, '333333', numbers)
     return send(res, 200, 'mensaje enviado')
   } catch (e) {
+    console.log(e.message)
     return send(res, 500, 'error al enviar el mensaje')
   }
 })
