@@ -37,6 +37,7 @@ hash.set('POST /auth', async function authenticate (req, res, params) {
   try {
     let token = await utils.signToken(payload, config.secret)
   } catch (e) {
+    console.error(e.message)
     return send(res, 500, e.message)
   }
   console.log(token)
