@@ -14,6 +14,7 @@ if (env === 'test') {
   db = new DbStub()
 }
 hash.set('GET /', async function authenticate (req, res, params) {
+  console.log(config)
   send(res, 200, 'server is ready')
 })
 hash.set('POST /auth', async function authenticate (req, res, params) {
