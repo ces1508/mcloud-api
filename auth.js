@@ -39,7 +39,9 @@ hash.set('POST /auth', async function authenticate (req, res, params) {
   console.log(payload)
 
   try {
+    console.log('dentro del try')
     let token = await utils.signToken(payload, config.secret)
+    console.log(token)
   } catch (e) {
     console.error(e.message)
     console.log('ocurrió un erro en el signToken')
