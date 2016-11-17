@@ -17,8 +17,6 @@ if (env === 'test') {
 
 hash.set('POST /create', async function create (req, res, params) {
   let data = await json(req)
-  console.log(data)
-  console.log(data.length)
   try {
     await db.connect()
     for (let i = 0; i < data.length; i++) {
@@ -33,6 +31,7 @@ hash.set('POST /create', async function create (req, res, params) {
     }
     await db.disconnet()
   } catch (e) {
+    console.log(e.message)
     await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
