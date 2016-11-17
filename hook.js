@@ -20,6 +20,7 @@ hash.set('POST /create', async function create (req, res, params) {
   try {
     await db.connect()
     for (let i = 0; i < data.length; i++) {
+      console.log(`creando un evento ${data[i].event}`)
       let data = {
         campaingId: data[i].campaingId,
         event: data[i].event,
