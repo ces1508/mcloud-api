@@ -35,6 +35,17 @@ hash.set('POST /create', async function create (req, res, params) {
     return send(res, 401, 'unAuthorized')
   }
 })
+hash.set('GET /', async function get (req, res, params) {
+  try {
+    let data = {campaingId:'aladsad-asdad',email:'ces15018@gmail.com', event:'dropped'}
+    await db.connect()
+    await db.createHook(data)
+    await db.disconnet()
+    send(res, 200, {algo: 'asdasdasda'})
+  } catch (e) {
+    console.error(e.message)
+  }
+})
 export default async function main (req, res) {
   let  { method, url } = req
   let match = hash.get(`${method.toUpperCase()} ${url}`)
