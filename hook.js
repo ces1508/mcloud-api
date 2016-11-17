@@ -17,9 +17,18 @@ if (env === 'test') {
 
 hash.set('POST /create', async function create (req, res, params) {
   let data = await json(req)
+  campaingId
   try {
     await db.connect()
-    console.log(data)
+    for (let i = 0; i < data.length; i++) {
+      let data = {
+        campaingId: data[i].campaingId,
+        event: data[i].event,
+        email: data[i].email,
+        date: data[i].timestamp
+      }
+      await createHook(data)
+    }
     await db.disconnet()
   } catch (e) {
     await db.disconnet()
