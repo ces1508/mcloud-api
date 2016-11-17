@@ -22,13 +22,13 @@ hash.set('POST /create', async function create (req, res, params) {
     console.log(data)
     for (let i = 0; i < data.length; i++) {
       console.log(`creando un evento ${data}`)
-      let data = {
+      let newData = {
         campaingId: data[i].campaingId,
         event: data[i].event,
         email: data[i].email,
         date: data[i].timestamp
       }
-      await createHook(data)
+      await createHook(newData)
     }
     await db.disconnet()
   } catch (e) {
