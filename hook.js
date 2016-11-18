@@ -11,10 +11,6 @@ const env = 'production'
 const hash = httpHash()
 let db = new Db(config.db)
 
-if (env === 'test') {
-  db = new DbStub()
-}
-
 hash.set('POST /create', async function create (req, res, params) {
   let data = await json(req)
   try {
@@ -38,10 +34,12 @@ hash.set('POST /create', async function create (req, res, params) {
 hash.set('GET /', async function get (req, res, params) {
   try {
     let data = {campaingId:'aladsad-asdad',email:'ces15018@gmail.com', event:'dropped'}
-    await db.connect()
-    await db.createHook(data)
-    await db.disconnet()
+    console.log(config)
+    // await db.connect()
+    // await db.createHook(data)
+    // await db.disconnet()
     send(res, 200, {algo: 'asdasdasda'})
+    await db.connect()
   } catch (e) {
     console.error(e.message)
   }
