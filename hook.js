@@ -43,6 +43,7 @@ hash.set('GET /', async function get (req, res, params) {
     console.log(db.port)
     console.log(db.db)
     await db.connect()
+    await db.createHook(data)
   } catch (e) {
     console.error(e.message)
   }
