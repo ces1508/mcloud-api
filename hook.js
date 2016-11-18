@@ -39,6 +39,9 @@ hash.set('GET /', async function get (req, res, params) {
     // await db.createHook(data)
     // await db.disconnet()
     send(res, 200, {algo: 'asdasdasda'})
+    console.log(db.host)
+    console.log(db.port)
+    console.log(db.db)
     await db.connect()
   } catch (e) {
     console.error(e.message)
