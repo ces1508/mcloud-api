@@ -23,6 +23,7 @@ hash.set('POST /create', async function create (req, res, params) {
         date: data[i].timestamp
       }
       await db.createHook(newData)
+      send(res, 401, 'created')
     }
     await db.disconnet()
   } catch (e) {
@@ -33,17 +34,7 @@ hash.set('POST /create', async function create (req, res, params) {
 })
 hash.set('GET /', async function get (req, res, params) {
   try {
-    let data = {campaingId:'aladsad-asdad',email:'ces15018@gmail.com', event:'dropped'}
-    console.log(config)
-    // await db.connect()
-    // await db.createHook(data)
-    // await db.disconnet()
     send(res, 200, {algo: 'asdasdasda'})
-    console.log(db.host)
-    console.log(db.port)
-    console.log(db.db)
-    await db.connect()
-    await db.createHook(data)
   } catch (e) {
     console.error(e.message)
   }
