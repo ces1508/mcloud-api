@@ -125,7 +125,7 @@ hash.set('GET /:id/page/:page', async function findEmails (req, res, params) {
     return send(res, 401, 'unAuthorized')
   }
   try {
-    campaing = await db.all('historicEmail', id, 'campaingId', skip, 'createdAt')
+    campaing = await db.all('historicEmail', id, 'campaingId', skip, 'date')
 
   } catch (e) {
     console.error(e.message)

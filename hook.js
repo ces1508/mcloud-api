@@ -23,7 +23,6 @@ hash.set('POST /create', async function create (req, res, params) {
         date: data[i].timestamp
       }
       await db.createHook(newData)
-      send(res, 401, 'created')
     }
     await db.disconnet()
   } catch (e) {
