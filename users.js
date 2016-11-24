@@ -30,13 +30,13 @@ hash.set('GET /:email', async function find (req, res, params) {
   await db.connect()
   let email = params.email
   let result = await db.findUserByEmail(email)
-  await db.disconnet()
 
   if (!result) {
     return send(res, 404, {error: false})
   }
   delete result.password
   delete result.company
+  await db.disconnet()
   send(res, 200, result)
 })
 

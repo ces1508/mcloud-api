@@ -16,7 +16,6 @@ if (env === 'test') {
 }
 
 hash.set('POST /sms/:id/', async function authenticate (req, res, params) {
-  console.log('entro al post de auth')
   await db.connect()
   let user = await json(req)
   let email = user.email
@@ -75,8 +74,15 @@ hash.set('POST /send', async function sendCampaingEmail (req, res, params) {
     try {
       let token = await utils.extractToken(req)
       let user = await utils.verifyToken(token, config.secret)
-      campaing = await db.find('campaingEmails', data.campaing)
       await utils.checkUser(user, campaing)
+      user = await db.find('users', user.id)
+      campaing = await db.find('campaingEmails', data.campaing)
+      let price = await db.find('emailPlans', user.emailPlanId)
+      let amount = await db.countContacts(campaing.databaseId)
+      let priceCampaign = (price.price * amount)
+      if (priceCampaign > user.balanceEmails) {
+        return send(res, 400, {error: 'no tienen saldo suficiente para enviar esta campaña'})
+      }
     } catch (e) {
       await db.disconnet()
       console.error(e.message)
@@ -88,6 +94,7 @@ hash.set('POST /send', async function sendCampaingEmail (req, res, params) {
     }
     catch (e) {
       console.error(e.message)
+      return send(res, 500, {error: `an error ocurried ${e.message}`})
     }
 })
 
