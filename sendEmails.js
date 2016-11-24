@@ -70,17 +70,25 @@ hash.set('POST /email/', async function sendCampaingSms (req, res, params) {
 hash.set('POST /send', async function sendCampaingEmail (req, res, params) {
     let data = await json(req)
     let campaing = null
+    console.log(config)
     await db.connect()
     try {
       let token = await utils.extractToken(req)
+      console.log(token)
       let user = await utils.verifyToken(token, config.secret)
+      console.log(user)
       await utils.checkUser(user, campaing)
       user = await db.find('users', user.id)
+      console.log(user)
       campaing = await db.find('campaingEmails', data.campaing)
+      console.log(campaing)
       let price = await db.find('emailPlans', user.emailPlanId)
+      console.log(price)
       let amount = await db.countContacts(campaing.databaseId)
+      console.log(amount)
       let priceCampaign = (price.price * amount)
       if (priceCampaign > user.balanceEmails) {
+        console.log('no tienes saldo suficiente')
         return send(res, 400, {error: 'no tienen saldo suficiente para enviar esta campaña'})
       }
     } catch (e) {
