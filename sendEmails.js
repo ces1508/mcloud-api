@@ -74,18 +74,12 @@ hash.set('POST /send', async function sendCampaingEmail (req, res, params) {
     await db.connect()
     try {
       let token = await utils.extractToken(req)
-      console.log(token)
       let user = await utils.verifyToken(token, config.secret)
       campaing = await db.find('campaingEmails', data.campaing)
-      console.log(user)
       await utils.checkUser(user, campaing)
       user = await db.find('users', user.id)
-      console.log(user)
-      console.log(campaing)
       let price = await db.find('emailPlans', user.emailPlanId)
-      console.log(price)
       let amount = await db.countContacts(campaing.databaseId)
-      console.log(amount)
       let priceCampaign = (price.price * amount)
       if (priceCampaign > user.balanceEmail) {
         console.log('no tienes saldo suficiente')
