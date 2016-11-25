@@ -42,6 +42,7 @@ hash.set('POST /send/', async function sendSms (req, res, params) {
     return send(res, 500, {error: e.message})
   }
   try {
+    console.log(data)
     if (typeof id !== 'undefined') {
         let data = {
           send: 0,
