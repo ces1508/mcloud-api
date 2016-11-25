@@ -87,8 +87,16 @@ hash.set('POST /send/test', async function testCampaing (req, res, params) {
   }
   try {
     numbers[0] = `57${data.phone}`
-    let sendTest = await sms.sendTest(text, '333333', numbers)
-    return send(res, 200, 'mensaje enviado')
+    user = await db.find('users', user.id)
+    let priceSms = await db.find('smsPlans', user.smsPlanId)
+    if (user.balanceSms > priceSms) {
+      let sendTest = await sms.sendTest(text, '333333', numbers)
+      let newBalance = (user.balanceSms - priceSms)
+      await db.update('users', user.id, {balanceSms: newBalance})
+       send(res, 200, 'mensaje enviado')
+    } else  {
+      return send(res, 400, {error: 'no tienes saldo suficiente para enviar el mensaje'})
+    }
   } catch (e) {
     console.log(e.message)
     return send(res, 500, 'error al enviar el mensaje')
