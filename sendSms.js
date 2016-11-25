@@ -20,19 +20,29 @@ hash.set('POST /send/', async function sendSms (req, res, params) {
   let id = data.campaingId
   let campaing = null
   let user = null
+  await db.connect()
   try {
-    await db.connect()
     let token = await utils.extractToken(req)
     user = await utils.verifyToken(token, config.secret)
     campaing = await db.find('campaingSms', id)
     let check = await utils.checkUser(user, campaing)
-    await db.disconnet()
   } catch (e) {
+    await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
   try {
+    user = await db.find('users', user.id)
+    let priceSms = await db.find('smsPlans', user.smsPlanId)
+    let amount = await db.countContacts(campaing.databaseId)
+    let priceCampaign = (priceSms.price * amount)
+    if (user.balaceSms < priceCampaign) {
+      return send(res, 400, {error: 'no tienes saldo suficiente para enviar esta campaña'})
+    }
+  } catch (e) {
+    return send(res, 500, {error: e.message})
+  }
+  try {
     if (typeof id !== 'undefined') {
-        await db.connect()
         let data = {
           send: 0,
           failed: 0,
