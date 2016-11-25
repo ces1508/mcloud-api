@@ -77,12 +77,12 @@ hash.set('POST /send/test', async function testCampaing (req, res, params) {
   let text = data.text
   let user = null
   let numbers = []
+  await db.connect()
   try {
-    await db.connect()
     let token = await utils.extractToken(req)
     user = await utils.verifyToken(token, config.secret)
-    await db.disconnet()
   } catch (e) {
+    await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
   try {
@@ -93,12 +93,14 @@ hash.set('POST /send/test', async function testCampaing (req, res, params) {
       let sendTest = await sms.sendTest(text, '333333', numbers)
       let newBalance = (user.balanceSms - priceSms)
       await db.update('users', user.id, {balanceSms: newBalance})
-       send(res, 200, 'mensaje enviado')
+      await db.disconnet()
+      send(res, 200, 'mensaje enviado')
     } else  {
       return send(res, 400, {error: 'no tienes saldo suficiente para enviar el mensaje'})
     }
   } catch (e) {
     console.log(e.message)
+    await db.disconnet()
     return send(res, 500, 'error al enviar el mensaje')
   }
 })
