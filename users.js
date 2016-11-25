@@ -45,6 +45,7 @@ hash.set('GET /campaign-sended', async function getDataCampaignSended (req, res,
     let token = await utils.extractToken(req)
     user = await utils.verifyToken(token, config.secret)
   } catch (e) {
+    console.log(e.message)
     return send(res, 401, {error: 'unAuthorizade'})
   }
   try {
@@ -52,6 +53,7 @@ hash.set('GET /campaign-sended', async function getDataCampaignSended (req, res,
     let response = await db.campaignSended(user.id)
     send(res, 200, response)
   } catch (e) {
+    console.error(e.message)
     return send(res, 500, {error: `ocurrió un error ${e.message}`})
   }
 })
