@@ -82,6 +82,7 @@ hash.set('POST /send/test', async function testCampaing (req, res, params) {
     let token = await utils.extractToken(req)
     user = await utils.verifyToken(token, config.secret)
   } catch (e) {
+    console.error(e.message)
     await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
