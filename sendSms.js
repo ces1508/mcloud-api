@@ -42,7 +42,6 @@ hash.set('POST /send/', async function sendSms (req, res, params) {
     return send(res, 500, {error: e.message})
   }
   try {
-    console.log(data)
     if (typeof id !== 'undefined') {
         let data = {
           send: 0,
@@ -76,11 +75,12 @@ hash.set('POST /send/', async function sendSms (req, res, params) {
 hash.set('POST /send/test', async function testCampaing (req, res, params) {
    let data = await  json(req)
   let text = data.text
+  let user = null
   let numbers = []
   try {
     await db.connect()
     let token = await utils.extractToken(req)
-    let user = await utils.verifyToken(token, config.secret)
+    user = await utils.verifyToken(token, config.secret)
     await db.disconnet()
   } catch (e) {
     return send(res, 401, 'unAuthorized')
