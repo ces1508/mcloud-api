@@ -94,7 +94,7 @@ hash.set('POST /send/test', async function testCampaing (req, res, params) {
     console.log(priceSms)
     if (user.balanceSms > priceSms.price) {
       let sendTest = await sms.sendTest(text, '333333', numbers)
-      let newBalance = (user.balanceSms - priceSms)
+      let newBalance = (user.balanceSms - priceSms.price)
       console.log(newBalance)
       console.log(user.id)
       await db.update('users', user.id, {balanceSms: newBalance})
