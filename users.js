@@ -5,6 +5,7 @@ import { send, json } from 'micro'
 import Db from 'mepscloud-db'
 import DbStub from './test/stub/db'
 import config from './config'
+import utils from './lib/utils'
 // const env = process.env.NODE_ENV || 'test'
 const env = 'production'
 const hash = httpHash()
