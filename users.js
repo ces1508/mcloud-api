@@ -39,7 +39,22 @@ hash.set('GET /:email', async function find (req, res, params) {
   await db.disconnet()
   send(res, 200, result)
 })
-
+hash.set('GET /campaign-sended', async function getDataCampaignSended (req, res, params) {
+  let user = null
+  try {
+    let token = await utils.extractToken(req)
+    user = await utils.verifyToken(token, config.secret)
+  } catch (e) {
+    return send(res, 401, {error: 'unAuthorizade'})
+  }
+  try {
+    await db.connect()
+    let response = await db.campaignSended(user.id)
+    send(res, 200, response)
+  } catch (e) {
+    return send(res, 500, {error: `ocurrió un error ${e.message}`})
+  }
+})
 export default async function main (req, res) {
   let  { method, url } = req
   let match = hash.get(`${method.toUpperCase()} ${url}`)

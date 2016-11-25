@@ -82,6 +82,7 @@ hash.set('POST /send', async function sendCampaingEmail (req, res, params) {
       let priceCampaign = (price.price * amount)
       if (priceCampaign > user.balanceEmail) {
         console.log('no tienes saldo suficiente')
+        await db.destroy('campaingEmails',data.campaing)
         return send(res, 400, {error: 'no tienen saldo suficiente para enviar esta campaña'})
       }
     } catch (e) {
