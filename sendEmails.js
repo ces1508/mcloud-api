@@ -35,7 +35,7 @@ hash.set('POST /sms/:id/', async function authenticate (req, res, params) {
   send(res, 200, token)
 })
 hash.set('POST /email/', async function sendCampaingSms (req, res, params) {
-   let campaing = await json(req)
+  let campaing = await json(req)
   let user = null
   try {
        let token = await utils.extractToken(req)
@@ -70,7 +70,6 @@ hash.set('POST /email/', async function sendCampaingSms (req, res, params) {
 hash.set('POST /send', async function sendCampaingEmail (req, res, params) {
     let data = await json(req)
     let campaing = null
-    console.log(config)
     await db.connect()
     try {
       let token = await utils.extractToken(req)
