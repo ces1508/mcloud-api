@@ -77,8 +77,8 @@ hash.set('POST /send/test', async function testCampaing (req, res, params) {
   let text = data.text
   let user = null
   let numbers = []
-  await db.connect()
   try {
+    await db.connect()
     let token = await utils.extractToken(req)
     user = await utils.verifyToken(token, config.secret)
   } catch (e) {
