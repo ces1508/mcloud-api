@@ -27,7 +27,12 @@ hash.set('POST /create', async function create (req, res, params) {
     await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
-
+  if (data.firstName) {
+    data.firstName = data.firstName.toLowerCase()
+  }
+   if (data.lastName) {
+    data.lastName = data.lastName.toLowerCase()
+  }
   let result = await db.create('contacts', data)
   try {
     await db.updateNumberContacts(data.databaseId)
