@@ -65,7 +65,6 @@ hash.set('POST /:id/sms', async function find (req, res, params) {
   try {
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
-    console.log(user)
     let campaing = await db.find('campaingSms', id)
     await utils.checkUser(user, campaing)
   }
@@ -78,6 +77,7 @@ hash.set('POST /:id/sms', async function find (req, res, params) {
     await db.disconnet()
     send(res, 200, data)
   } catch (e) {
+    console.error(e.message)
     return send(res, 500, {error: e.message})
   }
 })
