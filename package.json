@@ -51,13 +51,14 @@
     "each-async": "^1.1.1",
     "http-hash": "^2.0.0",
     "jsonwebtoken": "^7.1.9",
+    "mepscloud-db": "file:../mepscloud-db",
     "micro": "^4.1.1",
     "request": "^2.75.0",
     "request-promise": "^4.1.1",
     "rethinkdb": "^2.3.3",
     "sendgrid": "^4.5.0",
+    "then-sleep": "^1.0.1",
     "token-extractor": "^0.1.6",
-    "uuid-base62": "^0.1.0",
-    "mepscloud-db": "file:../mepscloud-db"
+    "uuid-base62": "^0.1.0"
   }
 }
