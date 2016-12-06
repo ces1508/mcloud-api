@@ -135,13 +135,16 @@ hash.set('GET /:id/page/:page', async function findEmails (req, res, params) {
 })
 hash.set('DELETE /:id', async function destroyEmail (req, res, params) {
   let id = params.id
+  console.log(params.id)
   await db.connect()
   try {
     let token = await utils.extractToken(req)
-    console.log(token)
+    console.log('token', token)
     let user = await utils.verifyToken(token, config.secret)
+    console.log('user', user)
     let campaing = await db.find('campaingEmails', id)
-    console.log(campaing)
+
+    console.log('campaign', campaing)
     await utils.checkUser(user, campaing)
   } catch (e) {
     console.log(e.message)
