@@ -142,6 +142,7 @@ hash.set('DELETE /:id', async function destroyEmail (req, res, params) {
     let campaing = await db.find('campaingEmails', id)
     await utils.checkUser(user, campaing)
   } catch (e) {
+    console.log(e.message)
     await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
