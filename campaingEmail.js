@@ -138,8 +138,10 @@ hash.set('DELETE /:id', async function destroyEmail (req, res, params) {
   await db.connect()
   try {
     let token = await utils.extractToken(req)
+    console.log(token)
     let user = await utils.verifyToken(token, config.secret)
     let campaing = await db.find('campaingEmails', id)
+    console.log(campaing)
     await utils.checkUser(user, campaing)
   } catch (e) {
     console.log(e.message)
