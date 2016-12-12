@@ -13,7 +13,7 @@ let db = new Db(config.db)
 
 hash.set('POST /create', async function create (req, res, params) {
   let data = await json(req)
-  console.log(data)
+
   try {
   await db.connect()
     for (let i = 0; i < data.length; i++) {
@@ -25,6 +25,7 @@ hash.set('POST /create', async function create (req, res, params) {
           date: data[i].timestamp
         }
         await db.createHook(newData)
+        console.log(newData)
       } else {
         console.log('no es de la plataforma nueva')
       }
