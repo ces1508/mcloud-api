@@ -11,24 +11,26 @@ const env = 'production'
 const hash = httpHash()
 let db = new Db(config.db)
 
+await db.connect()
 hash.set('POST /create', async function create (req, res, params) {
   let data = await json(req)
   console.log(data)
   try {
-    await db.connect()
     for (let i = 0; i < data.length; i++) {
-      let newData = {
-        campaingId: data[i].campaingId,
-        event: data[i].event,
-        email: data[i].email,
-        date: data[i].timestamp
+      if (data[i].campaingId) {
+        let newData = {
+          campaingId: data[i].campaingId,
+          event: data[i].event,
+          email: data[i].email,
+          date: data[i].timestamp
+        }
+        await db.createHook(newData)
+      } else {
+        console.log('no es de la plataforma nueva')
       }
-      await db.createHook(newData)
     }
-    await db.disconnet()
   } catch (e) {
     console.log(e.message)
-    await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
 })
