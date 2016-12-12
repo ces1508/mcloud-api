@@ -11,11 +11,11 @@ const env = 'production'
 const hash = httpHash()
 let db = new Db(config.db)
 
-await db.connect()
 hash.set('POST /create', async function create (req, res, params) {
   let data = await json(req)
   console.log(data)
   try {
+  await db.connect()
     for (let i = 0; i < data.length; i++) {
       if (data[i].campaingId) {
         let newData = {
@@ -29,7 +29,9 @@ hash.set('POST /create', async function create (req, res, params) {
         console.log('no es de la plataforma nueva')
       }
     }
+    await db.disconnet()
   } catch (e) {
+    disconnet
     console.log(e.message)
     return send(res, 401, 'unAuthorized')
   }
