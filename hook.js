@@ -22,7 +22,8 @@ hash.set('POST /create', async function create (req, res, params) {
           campaingId: data[i].campaingId,
           event: data[i].event,
           email: data[i].email,
-          date: data[i].timestamp
+          date: data[i].timestamp,
+          userId: data[i].userId
         }
         await db.createHook(newData)
         console.log(newData)
