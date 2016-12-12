@@ -26,9 +26,6 @@ hash.set('POST /create', async function create (req, res, params) {
           userId: data[i].userId
         }
         await db.createHook(newData)
-        console.log(newData)
-      } else {
-        console.log('no es de la plataforma nueva')
       }
     }
     await db.disconnet()
