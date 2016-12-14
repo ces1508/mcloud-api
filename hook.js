@@ -42,7 +42,7 @@ hash.set('GET /', async function get (req, res, params) {
   }
 })
 hash.set('GET /loaderio-56a2cc8c2a5a4d17a63a478d5b78164e', async function loaderio (req, res, params) {
-  send(res, 'loaderio-56a2cc8c2a5a4d17a63a478d5b78164e')
+  send(res, 200, 'loaderio-56a2cc8c2a5a4d17a63a478d5b78164e')
 })
 export default async function main (req, res) {
   let  { method, url } = req
