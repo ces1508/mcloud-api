@@ -32,6 +32,7 @@ hash.set('POST /create', async function create (req, res, params) {
   } catch (e) {
     disconnet
     console.log(e.message)
+    return send(res, 500, {error: e.message})
   }
 })
 hash.set('GET /', async function get (req, res, params) {
