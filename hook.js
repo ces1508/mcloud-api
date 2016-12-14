@@ -32,7 +32,6 @@ hash.set('POST /create', async function create (req, res, params) {
   } catch (e) {
     disconnet
     console.log(e.message)
-    return send(res, 401, 'unAuthorized')
   }
 })
 hash.set('GET /', async function get (req, res, params) {
@@ -41,6 +40,9 @@ hash.set('GET /', async function get (req, res, params) {
   } catch (e) {
     console.error(e.message)
   }
+})
+hash.set('GET /loaderio-56a2cc8c2a5a4d17a63a478d5b78164e', async function loaderio (req, res, params) {
+  send(res, 'loaderio-56a2cc8c2a5a4d17a63a478d5b78164e')
 })
 export default async function main (req, res) {
   let  { method, url } = req
