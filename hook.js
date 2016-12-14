@@ -42,6 +42,9 @@ hash.set('GET /', async function get (req, res, params) {
     console.error(e.message)
   }
 })
+hash.set('POST /', async function testPost (req, res, params) {
+  send (res, 201, {algo: 'asdasdad'})
+})
 hash.set('GET /loaderio-56a2cc8c2a5a4d17a63a478d5b78164e', async function loaderio (req, res, params) {
   send(res, 200, 'loaderio-56a2cc8c2a5a4d17a63a478d5b78164e')
 })
