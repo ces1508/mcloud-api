@@ -24,14 +24,12 @@ hash.set('POST /create', async function create (req, res, params) {
           date: data[i].timestamp,
           userId: data[i].userId
         }
-        console.log(data[i])
         let result = await db.createHook(newData)
-        console.log(result)
       }
     }
     await db.disconnet()
   } catch (e) {
-    console.log(e.message)
+    console.error(e.message)
     return send(res, 500, {error: e.message})
   }
 })
