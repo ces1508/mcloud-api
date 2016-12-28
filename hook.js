@@ -27,7 +27,6 @@ hash.set('POST /create', async function create (req, res, params) {
         let result = await db.createHook(newData)
       }
     }
-    await db.disconnet()
   } catch (e) {
     console.error(e.message)
     return send(res, 500, {error: e.message})
