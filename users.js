@@ -37,8 +37,8 @@ hash.set('GET /:email', async function find (req, res, params) {
   }
   delete result.password
   delete result.company
-  await db.disconnet()
   send(res, 200, result)
+  // await db.disconnet()
 })
 hash.set('GET /campaign-sended', async function getDataCampaignSended (req, res, params) {
   let user = null
