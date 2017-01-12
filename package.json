@@ -56,6 +56,7 @@
     "request": "^2.75.0",
     "request-promise": "^4.1.1",
     "rethinkdb": "^2.3.3",
+    "rethinkdbdash": "^2.3.27",
     "sendgrid": "^4.5.0",
     "then-sleep": "^1.0.1",
     "token-extractor": "^0.1.6",
