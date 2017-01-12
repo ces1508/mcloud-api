@@ -35,7 +35,6 @@ hash.set('POST /create', async function create (req, res, params) {
           newData.userId = campaign.userId
           let old_data = await r.db('mepscloud').table('historicEmail').getAll(data[i].email, {index: 'email'})
           .filter({campaingId: data[i].campaingId})
-          console.log(old_data)
           if (newData.event === 'open'  && old_data[0].event != 'click') {
             await r.db('mepscloud').table('historicEmail').getAll(data[i].email, {index: 'email'})
             .filter({campaingId: newData.campaingId}).update({date: newData.date})
