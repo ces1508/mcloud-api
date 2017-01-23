@@ -65,6 +65,7 @@ hash.set('POST /send/', async function sendSms (req, res, params) {
           let contacts = await sms.sendCustom(id, user.id)
           return send(res, 200, {data: 'campaña enviada'})
         } catch (e) {
+          return send(res, 500, {error: `ocurrió el siguente error al enviar la campaña ${e.message}`})
         }
       }
     }
@@ -107,7 +108,6 @@ hash.set('POST /send/test', async function testCampaing (req, res, params) {
 })
 hash.set('GET /:id', async function raiz (req, res, params) {
   let id = params.id
-  console.log(`request en la prueba de reporte y el id de la campaña es ${id}`)
   try {
     await db.connect()
     let data = await db.getReport(id, 'historicSms')
