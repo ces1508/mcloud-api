@@ -45,6 +45,7 @@ hash.set('POST /create', async function create (req, res, params) {
         }
       }
     }
+    return send(res, 201, {data: 'created'})
   } catch (e) {
     console.error(e.message)
     return send(res, 500, {error: e.message})
