@@ -16,6 +16,7 @@ if (env === 'test') {
 }
 
 hash.set('POST /create', async function create (req, res, params) {
+  console.log('llegó peticion para crear un template')
   let data = await json(req)
   let user = null
   console.log(data)
