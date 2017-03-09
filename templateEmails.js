@@ -23,7 +23,7 @@ hash.set('POST /create', async function create (req, res, params) {
   try {
     let token = await utils.extractToken(req)
     user = await utils.verifyToken(token, config.secret)
-    await utils.checkUser(user, data)
+    // await utils.checkUser(user, data)
   } catch (e) {
     console.error(e)
     return send(res, 401, 'unAuthorized')
