@@ -48,7 +48,7 @@ hash.set('POST /create', async function create (req, res, params) {
             .filter({campaingId: newData.campaingId}).update({date: newData.date, customDate: newData.customDate, hour: newData.hour})
           } else {
              await r.db('mepscloud').table('historicEmail').getAll(data[i].email, {index: 'email'})
-            .filter({campaingId: newData.campaingId}).update({date: newData.date, customDate: newData.customDate, hour: newData.hour})
+            .filter({campaingId: newData.campaingId}).update({event:newData.event ,date: newData.date, customDate: newData.customDate, hour: newData.hour})
           }
         }
       }
