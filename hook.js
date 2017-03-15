@@ -21,9 +21,9 @@ const ramdom = function () {
 }
 hash.set('POST /create', async function create (req, res, params) {
   let data = await json(req)
-  function parseDate () {
+  function parseDate (date) {
     function pad(s) { return (s < 10) ? '0' + s : s }
-    var d = new Date(inputFormat * 1000)
+    var d = new Date(date * 1000)
     return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
   }
 
