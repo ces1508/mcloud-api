@@ -21,6 +21,12 @@ const ramdom = function () {
 }
 hash.set('POST /create', async function create (req, res, params) {
   let data = await json(req)
+  function parseDate () {
+    function pad(s) { return (s < 10) ? '0' + s : s }
+    var d = new Date(inputFormat * 1000)
+    return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
+  }
+
   try {
     for (let i = 0; i < data.length; i++) {
       if (data[i].campaingId) {
@@ -29,6 +35,8 @@ hash.set('POST /create', async function create (req, res, params) {
           event: data[i].event,
           email: data[i].email,
           date: data[i].timestamp,
+          customDate: parseDate(data[i].timestamp),
+          hour: new Date(data[i].timestamp * 1000).getHours()
         }
         let campaign = await r.db('mepscloud').table('campaingEmails').get(newData.campaingId)
         if (campaign) {
