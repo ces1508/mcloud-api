@@ -22,16 +22,12 @@ hash.set('GET /list-images/page/:page', async function allImages (req, res, para
   } catch (e) {
     return send(res, 401, 'unauthorized')
   }
-  await db.connect()
   let images = await db.all('images', user.id, 'userId', 0, 'createdAt')
-  await db.disconnet()
   send(res, 200, images)
 })
 hash.set('GET /:id', async function getImage (req, res, params) {
   let id = params.id
-  await db.connect()
   let image = await db.find('images', id)
-  await db.disconnet()
   send(res, 200, image)
 })
 
@@ -46,10 +42,8 @@ hash.set('POST /create', async function createImage (req, res, params) {
     console.error(e.message)
     return send(res, 401, { error: 'unauthorized' })
   }
-  await db.connect()
   let created = await db.create('images', image)
   delete created.userId
-  await db.disconnet()
   send(res, 201, created)
 })
 
