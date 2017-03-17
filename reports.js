@@ -130,7 +130,6 @@ hash.set('GET /:id/email', async function reportByCampaignEmail (req, res, param
   }
   try {
     let data = await db.graphEmailsbyCampaign(id)
-    await db.disconnet()
     send(res, 200, data)
   } catch (e) {
     return send(res, 500, {error: e.message})
