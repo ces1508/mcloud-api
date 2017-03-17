@@ -25,10 +25,8 @@ hash.set('POST /create', async function create (req, res, params) {
     console.error(e)
     return send(res, 401, 'unAuthorized')
   }
-  await db.connect()
   data.userId = user.id
   let result = await db.create('templateEmails', data)
-  await db.disconnet()
   send(res, 201, result)
 })
 
@@ -42,38 +40,30 @@ hash.set('GET /page/:page', async function allTemplates (req, res, params) {
   } catch (e) {
     return send(res, 401, 'unAuthorized')
   }
-  await db.connect()
   let result = await db.allTemplateEmails( user.id, skip)
-  await db.disconnet()
   send(res, 200, result)
 })
 hash.set('PATCH /:id', async function update (req, res, params) {
   let id = params.id
   let data = await json(req)
-  await db.connect()
   try {
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
     let template = await db.find('templateEmails', id)
     await utils.checkUser(user, template)
   } catch (e) {
-    await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
   let result = await db.update('templateEmails', id, data)
-  await db.disconnet()
   send(res, 200, result)
 })
 hash.set('GET /:id', async function find (req, res, params) {
   let id = params.id
   let result = null
-
-  await db.connect()
   try {
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
     result = await db.find('templateEmails', id)
-    await db.disconnet()
     await utils.checkUser(user, result)
   } catch (e) {
     return send(res, 401, 'unAuthorized')
@@ -82,18 +72,15 @@ hash.set('GET /:id', async function find (req, res, params) {
 })
 hash.set('DELETE /:id', async function destroy (req, res, params) {
   let id = params.id
-  await db.connect()
   try {
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
     let template = await db.find('templateEmails', id)
     await utils.checkUser(user, template)
   } catch (e) {
-    await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
   let result = await db.destroy('templateEmails', id)
-  await db.disconnet()
   send(res, 200, result)
 })
 

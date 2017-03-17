@@ -6,6 +6,8 @@ import Db from 'mepscloud-db'
 import DbStub from './test/stub/db'
 import config from './config'
 import utils from './lib/utils'
+import uuid from 'uuid-base62'
+import mail from './lib/mail'
 // const env = process.env.NODE_ENV || 'test'
 const hash = httpHash()
 let db = new Db(config.db)
@@ -13,29 +15,68 @@ const env = 'production'
 if (env === 'test') {
   db = new DbStub()
 }
-hash.set('GET /', async function authenticate (req, res, params) {
-  send(res, 200, 'server is ready')
-})
+
 hash.set('POST /auth', async function authenticate (req, res, params) {
-  await db.connect()
   let user = await json(req)
-  let email = user.email
   let auth = await db.authenticate(user.email, user.password)
   if (!auth) {
-    await db.disconnet()
     return send(res, 401, { error: 'invalid crendentials' })
   }
-  let data = await db.findUserByEmail(email)
-  let payload = {
-    email: data.email,
-    name: data.username,
-    id: data.id
+  let data = await db.findUserByEmail(user.email)
+  if (data.active) {
+    let payload = {
+      email: data.email,
+      name: data.username,
+      id: data.id
+    }
+    let token = await utils.signToken(payload, config.secret)
+    return send(res, 200, token)
+  } else {
+    return send(res, 200, {info: `user is not active, please check your email`, email: data.email})
   }
-  let token = await utils.signToken(payload, config.secret)
-  await db.disconnet()
-  send(res, 200, token)
+})
+hash.set('POST /recoverPassword', async function recoverPassword (req, res, params) {
+  await db.connect()
+  // let email = await json(req)
+  let email = {
+    email: 'ces1508@gmail.com'
+  }
+  try {
+    let user = await db.findUserByEmail(email.email)
+    if (user) {
+      let to = [
+        {
+          to :[{
+            email: email.email
+          }]
+        }
+      ]
+      mail.sendSingle('no-replay@mepscloud.com', `<p> para recuperar tu contraseña dale click al siguente link <a href = "https://mepscloud.com/reset/password/${uuid.uuid()}"> click </a> </p>`, 'recupera tu contraseña', to)
+      return send(res, 200, {data: `${uuid.uuid()}`})
+    } else {
+      return send(res, 404, {data: 'we cant find this user'})
+    }
+  } catch (e) {
+    return send(res, 500, {error: 'sorry we have a problem'})
+  }
 })
 
+hash.set('POST /activateAccount', async function activateAccoun (req, res, params) {
+  //let data = await json(req)
+  let data = {
+    token: '4fc0d653-e02f-4095-9f6d-7782479a9804'
+  }
+
+  try {
+    let activate = await db.activateAccount(data.token)
+    if (activate) {
+      return send(res, 200, {sucess: 'the account is ready to use'})
+    }
+    return send(res, 400, {error: 'we cant be find this user'})
+  } catch (e) {
+    return send(res, 500, {error: `we sorry, an error occurred ${e.message} `})
+  }
+})
 export default async function main (req, res) {
   let  { method, url } = req
   let match = hash.get(`${method.toUpperCase()} ${url}`)

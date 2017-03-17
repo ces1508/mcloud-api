@@ -18,27 +18,22 @@ if (env === 'test') {
 hash.set('POST /create', async function create (req, res, params) {
   await db.connect()
   let user = await json(req)
-  console.log(user)
-  console.log(`env ${env}`)
+  user.active = false
   let result = await db.createUser(user)
-  await db.disconnet()
   delete result.password
   console.log(result)
   send(res, 201, result)
 })
 
 hash.set('GET /:email', async function find (req, res, params) {
-  await db.connect()
   let email = params.email
   let result = await db.findUserByEmail(email)
-
   if (!result) {
     return send(res, 404, {error: false})
   }
   delete result.password
   delete result.company
   send(res, 200, result)
-  // await db.disconnet()
 })
 hash.set('GET /campaign-sended', async function getDataCampaignSended (req, res, params) {
   let user = null
@@ -50,7 +45,6 @@ hash.set('GET /campaign-sended', async function getDataCampaignSended (req, res,
     return send(res, 401, {error: 'unAuthorizade'})
   }
   try {
-    await db.connect()
     let response = await db.campaignSended(user.id)
     send(res, 200, response)
   } catch (e) {

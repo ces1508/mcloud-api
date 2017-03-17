@@ -15,27 +15,26 @@ if (env === 'test') {
   db = new DbStub()
 }
 
-hash.set('POST /send/', async function sendSms (req, res, params) {
+hash.set('POST /send', async function sendSms (req, res, params) {
   let data = await  json(req)
   let id = data.campaingId
   let campaing = null
   let user = null
-  await db.connect()
+  let amount = 0
   try {
     let token = await utils.extractToken(req)
     user = await utils.verifyToken(token, config.secret)
     campaing = await db.find('campaingSms', id)
+
     let check = await utils.checkUser(user, campaing)
   } catch (e) {
-    await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
   try {
     user = await db.find('users', user.id)
-    let priceSms = await db.find('smsPlans', user.smsPlanId)
-    let amount = await db.countContacts(campaing.databaseId)
-    let priceCampaign = (priceSms.price * amount)
-    if (priceCampaign > user.balanceSms) {
+    amount = await db.countContacts(campaing.databaseId)
+    console.log(amount)
+    if (user.balanceSms < amount) {
       return send(res, 400, {error: 'no tienes saldo suficiente para enviar esta campaña'})
     }
   } catch (e) {
@@ -51,21 +50,21 @@ hash.set('POST /send/', async function sendSms (req, res, params) {
           type: 'sms'
       }
       await db.saveStatistics(data)
-      await db.disconnet()
       if (!campaing.custom) {
         try {
-          let contacts  = await sms.send(id, user.id)
+          let contacts  = await sms.send(id, user.id, amount)
           return send(res, 200, {data: 'campaña enviada'})
         } catch  (e) {
           console.error(e.message)
-          return send(res, 500, {error: `ocurrió el siguente error al enviar la campaña ${e.message}`})
+          return send(res, 500, {error: `ocurrió un error al enviar la campaña por favor intenta mas tarde}`})
         }
       } else {
         try {
-          let contacts = await sms.sendCustom(id, user.id)
+          let contacts = await sms.sendCustom(id, user.id, amount)
           return send(res, 200, {data: 'campaña enviada'})
         } catch (e) {
-          return send(res, 500, {error: `ocurrió el siguente error al enviar la campaña ${e.message}`})
+          console.log(e.message)
+          return send(res, 500, {error: `ocurrió un error al enviar la campaña por favor intenta mas tarde}`})
         }
       }
     }
@@ -79,12 +78,10 @@ hash.set('POST /send/test', async function testCampaing (req, res, params) {
   let user = null
   let numbers = []
   try {
-    await db.connect()
     let token = await utils.extractToken(req)
     user = await utils.verifyToken(token, config.secret)
   } catch (e) {
     console.error(e.message)
-    await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
   try {
@@ -95,24 +92,20 @@ hash.set('POST /send/test', async function testCampaing (req, res, params) {
       let sendTest = await sms.sendTest(text, '333333', numbers)
       let newBalance = (user.balanceSms - priceSms.price)
       await db.update('users', user.id, {balanceSms: newBalance})
-      await db.disconnet()
       send(res, 200, 'mensaje enviado')
     } else  {
       return send(res, 400, {error: 'no tienes saldo suficiente para enviar el mensaje'})
     }
   } catch (e) {
     console.log(e.message)
-    await db.disconnet()
+
     return send(res, 500, 'error al enviar el mensaje')
   }
 })
 hash.set('GET /:id', async function raiz (req, res, params) {
   let id = params.id
   try {
-    await db.connect()
     let data = await db.getReport(id, 'historicSms')
-    console.log(data)
-    await db.disconnet()
     send(res, 200, data)
   } catch  (e) {
     console.error(e.message)

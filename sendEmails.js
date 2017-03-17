@@ -15,83 +15,28 @@ if (env === 'test') {
   db = new DbStub()
 }
 
-hash.set('POST /sms/:id/', async function authenticate (req, res, params) {
-  await db.connect()
-  let user = await json(req)
-  let email = user.email
-  let auth = await db.authenticate(user.email, user.password)
-  if (!auth) {
-    await db.disconnet()
-    return send(res, 401, { error: 'invalid crendentials' })
-  }
-  let data = await db.findUserByEmail(email)
-  let payload = {
-    email: data.email,
-    name: data.username,
-    id: data.id
-  }
-  let token = await utils.signToken(payload, config.secret)
-  await db.disconnet()
-  send(res, 200, token)
-})
-hash.set('POST /email/', async function sendCampaingSms (req, res, params) {
-  let campaing = await json(req)
-  let user = null
-  try {
-       let token = await utils.extractToken(req)
-       user = await utils.verifyToken(token, config.secret)
-  } catch (e) {
-    return send(res, 401,'Unauthorized')
-  }
-
-  try {
-     await db.connect()
-     let campaing = await db.find('campaingEmail', campaing.id)
-     await utils.checkUser(user.id, campaing.userId)
-    let to = [
-      {
-        'to':[
-          {
-            'email': 'ces1508@gmail.com'
-          },
-          {
-            'email': 'ces_1508@hotmail.com'
-          }
-        ]
-      }
-    ]
-    let email = await mail.send('ces@test.com', 'probando el envio de single email', 'test 1', to)
-    send(res, 200, email)
-  } catch (e) {
-    return send(res, 403, e)
-  }
-})
-
 hash.set('POST /send', async function sendCampaingEmail (req, res, params) {
     let data = await json(req)
     let campaing = null
-    await db.connect()
+    let user = null
     try {
       let token = await utils.extractToken(req)
-      let user = await utils.verifyToken(token, config.secret)
+      user = await utils.verifyToken(token, config.secret)
+      user = await db.find('users', user.id)
       campaing = await db.find('campaingEmails', data.campaing)
       await utils.checkUser(user, campaing)
-      user = await db.find('users', user.id)
-      let price = await db.find('emailPlans', user.emailPlanId)
-      let amount = await db.countContacts(campaing.databaseId)
-      let priceCampaign = (price.price * amount)
-      if (priceCampaign > user.balanceEmail) {
+    } catch (e) {
+      return send(res, 401, 'Unauthorized')
+    }
+    try {
+      let contacts = await db.countContacts(campaing.databaseId)
+      console.log(contacts)
+      if (user.balanceEmail < contacts) {
         console.log('no tienes saldo suficiente')
         await db.destroy('campaingEmails',data.campaing)
         return send(res, 400, {error: 'no tienen saldo suficiente para enviar esta campaña'})
       }
-    } catch (e) {
-      await db.disconnet()
-      console.error(e.message)
-      return send(res, 401, 'Unauthorized')
-    }
-    try {
-      await mail.sendMultiple(campaing.id)
+      await mail.sendMultiple(campaing.id, contacts)
       send(res, 200, {data: 'camapaign sended'})
     }
     catch (e) {

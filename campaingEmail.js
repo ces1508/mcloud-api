@@ -24,7 +24,6 @@ hash.set('POST /create', async function createCampaingSms (req, res, params) {
     console.error(e.message)
     return send(res, 401, e.message)
   }
-  await db.connect()
   if(!data.templateId) {
     return send(res, 400, 'debes enviar el templateId')
   }
@@ -32,7 +31,6 @@ hash.set('POST /create', async function createCampaingSms (req, res, params) {
     return send(res, 400, 'debes enviar el databaseId')
   }
   let result = await db.create('campaingEmails', data)
-  await db.disconnet()
   send(res, 201, result)
 })
 
@@ -46,10 +44,8 @@ hash.set('GET /page/:page', async function allCampaingEmails (req, res, params) 
   } catch (e) {
     return send(res, 401, 'unAuthorized')
   }
-  await db.connect()
   try {
     let result = await db.allCampaing('campaingEmails', user.id, skip)
-    await db.disconnet()
     send(res, 200, result)
   } catch (e) {
     return send(res,500, e)
@@ -61,11 +57,9 @@ hash.set('POST /filter', async function filterCampaings (req, res, params) {
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
     let campaing = data.campaing
-    await db.connect()
     console.log(user.id)
     let result = await db.filterCamapings('campaingEmails', 'nameCampaing', campaing, {'userId': user.id})
     console.log(result)
-    await db.disconnet()
     send(res, 200, result)
   } catch (e) {
     return send(res, 500, {error: e.message})
@@ -83,10 +77,8 @@ hash.set('POST /filter-data/:id', async function filterDataCampaings (req, res, 
   }
   try {
     let id = params.id
-    await db.connect()
       let value = data.value.toLowerCase()
       response = await db.customFind('historicEmail', id, 'campaingId', data.row, value, {})
-      await db.disconnet()
     return send(res, 200, response)
   } catch (e) {
     return send(res, 500, {error: e.message})
@@ -104,7 +96,6 @@ hash.set('PATCH /:id', async function updateCampaingEmail(req, res, params) {
   } catch (e) {
     return send(res, 401, 'unAuthorized')
   }
-  await db.connect()
   let campaing = await db.update('campaingEmails', id, data)
   send(res, 200, campaing)
 })
@@ -115,13 +106,11 @@ hash.set('GET /:id/page/:page', async function findEmails (req, res, params) {
   let skip = params.page || 0
   skip = parseInt(skip)
   try {
-    await db.connect()
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
     let result = await db.find('campaingEmails', id)
     await utils.checkUser(user, result)
   } catch (e) {
-     await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
   try {
@@ -130,12 +119,10 @@ hash.set('GET /:id/page/:page', async function findEmails (req, res, params) {
   } catch (e) {
     console.error(e.message)
   }
-  await db.disconnet()
   send(res, 200, campaing)
 })
 hash.set('DELETE /:id', async function destroyEmail (req, res, params) {
   let id = params.id
-  await db.connect()
   try {
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
@@ -143,7 +130,6 @@ hash.set('DELETE /:id', async function destroyEmail (req, res, params) {
     await utils.checkUser(user, campaing)
   } catch (e) {
     console.log(e.message)
-    await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
   let result = await db.destroy('campaingEmails', id)

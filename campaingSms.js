@@ -24,9 +24,7 @@ hash.set('POST /create', async function createSms (req, res, params) {
   } catch (e) {
     return send(res, 401, e.message)
   }
-  await db.connect()
   let result = await db.create('campaingSms', data)
-  await db.disconnet()
   send(res, 201, result)
 })
 
@@ -40,10 +38,8 @@ hash.set('GET /page/:page', async function allSms (req, res, params) {
   } catch (e) {
     return send(res, 401, 'unAuthorized')
   }
-  await db.connect()
   try {
     let result = await db.allCampaing('campaingSms', user.id, skip)
-    await db.disconnet()
     send(res, 200, result)
   } catch (e) {
     return send(res,500, e)
@@ -55,11 +51,7 @@ hash.set('POST /filter', async function filterCampaings (req, res, params) {
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
     let campaing = data.campaing
-    await db.connect()
-    console.log(user.id)
     let result = await db.filterCamapings('campaingSms', 'nameCampaing', campaing, {'userId': user.id})
-    console.log(result)
-    await db.disconnet()
     send(res, 200, result)
   } catch (e) {
     return send(res, 500, {error: e.message})
@@ -77,10 +69,8 @@ hash.set('POST /filter-data/:id', async function filterDataCampaings (req, res, 
   }
   try {
     let id = params.id
-    await db.connect()
-      let value = data.value.toLowerCase()
-      response = await db.customFind('historicSms', id, 'campaingId', data.row, value, {})
-      await db.disconnet()
+    let value = data.value.toLowerCase()
+    response = await db.customFind('historicSms', id, 'campaingId', data.row, value, {})
     return send(res, 200, response)
   } catch (e) {
     return send(res, 500, {error: e.message})
@@ -98,7 +88,6 @@ hash.set('PATCH /:id', async function updateSms (req, res, params) {
   } catch (e) {
     return send(res, 401, 'unAuthorized')
   }
-  await db.connect()
   let campaing = await db.update('campaingSms', id, data)
   send(res, 200, campaing)
 })
@@ -109,38 +98,31 @@ hash.set('GET /:id/page/:page', async function findSms (req, res, params) {
   let skip = params.page || 0
   skip = parseInt(skip)
   try {
-    await db.connect()
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
     let result = await db.find('campaingSms', id)
     await utils.checkUser(user, result)
   } catch (e) {
-     await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
   try {
     campaing = await db.all('historicSms', id, 'campaingId', skip, 'Date')
-
   } catch (e) {
     console.error(e.message)
   }
-  await db.disconnet()
   send(res, 200, campaing)
 })
 hash.set('DELETE /:id', async function destroySms (req, res, params) {
   let id = params.id
-  await db.connect()
   try {
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
     let campaing = await db.find('campaingSms', id)
     await utils.checkUser(user, campaing)
   } catch (e) {
-    await db.disconnet()
     return send(res, 401, 'unAuthorized')
   }
   let result = await db.destroy('campaingSms', id)
-  await db.disconnet()
   send(res, 200, result)
 })
 
