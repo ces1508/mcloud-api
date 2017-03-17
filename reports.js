@@ -117,7 +117,9 @@ hash.set('POST /report-by-month', async function reportMonth (req, res, params) 
 })
 hash.set('GET /:id/email', async function reportByCampaignEmail (req, res, params) {
   let id = params.id
-  await db.connect()
+  let response = [{event: 'click', value : 0}, {event: 'open', value: 0}, {event: 'bounce', value: 0},
+    {event: 'deferred', value : 0}, {event: 'delivered', value: 0}, {event: 'dropped', value: 0}, {event: 'processed', value: 0},
+    {event: 'sending', value : 0}, {event: 'spamreport', value: 0}, {event: 'unsubscribe', value: 0}]
   try {
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
@@ -130,7 +132,14 @@ hash.set('GET /:id/email', async function reportByCampaignEmail (req, res, param
   }
   try {
     let data = await db.graphEmailsbyCampaign(id)
-    send(res, 200, data)
+    for (let i = 0; i < response.length; i++) {
+      for (let j = 0; j < data.length; j++) {
+        if (response[i].event === data[j].group) {
+          response[i].value = data[j].reduction
+        }
+      }
+    }
+    send(res, 200, response)
   } catch (e) {
     return send(res, 500, {error: e.message})
   }
