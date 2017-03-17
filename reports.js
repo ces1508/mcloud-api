@@ -43,7 +43,7 @@ hash.set('POST /report-index', async function reportIndex (req, res , params) {
     return send(res, 500,)
   }
 })
-hash.set('GET /:id/sms', async function find (req, res, params) {
+hash.set('POST /:id/sms', async function find (req, res, params) {
   let id = params.id
   try {
     let token = await utils.extractToken(req)
