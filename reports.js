@@ -64,29 +64,34 @@ hash.set('POST /:id/sms', async function find (req, res, params) {
   }
 })
 hash.set('POST /report-week-sms', async function rWeek (req, res, params) {
-  // let date = await json(req)
-  // try {
-  //   let token = await utils.extractToken(req)
-  //   let user = await utils.verifyToken(token, config.secret)
-  //   fech = fech.setDate(fech.getDate() - i)
-  //   for (let i = 0; i <= 6; i++) {
-  //     let fech = new Date(date.date)
-  //     fech = fech.setDate(fech.getDate() - i)
-  //     fech = new Date(fech)
-  //     let day = fech.getDate()
-  //     let month = fech.getMonth()
-  //     let year = fech.getFullYear()
-  //     let midnight = Math.round(new Date(year, month, day, 23, 59, 59).getTime() /1000.0)
-  //     let dawn = Math.round(new Date(year, month, day).getTime() /1000.0 )
-  //     data.push(db.getReportSmsByDay(user.id, dawn, midnight))
-  //   }
-  //   let response = await Promise.all(data)
-  //   send(res, 200, response)
-  // }
-  // catch (e) {
-  //   console.error(e.message)
-  //   return send(res, 500, e.message)
-  // }
+  let date = await json(req)
+  let data = []
+  let user = null
+  try {
+    let token = await utils.extractToken(req)
+    user = await utils.verifyToken(token, config.secret)
+  } catch (e) {
+    return send(res, 401, 'unAuthorized')
+  }
+  try {
+    for (let i = 0; i <= 6; i++) {
+      let fech = new Date(date.date)
+      fech = fech.setDate(fech.getDate() - i)
+      fech = new Date(fech)
+      let day = fech.getDate()
+      let month = fech.getMonth()
+      let year = fech.getFullYear()
+      let midnight = Math.round(new Date(year, month, day, 23, 59, 59).getTime() /1000.0)
+      let dawn = Math.round(new Date(year, month, day).getTime() /1000.0 )
+      data.push(db.getReportSmsByDay(user.id, dawn, midnight))
+    }
+    let response = await Promise.all(data)
+    send(res, 200, response)
+  }
+  catch (e) {
+    console.error(e.message)
+    return send(res, 500, e.message)
+  }
 
 })
 hash.set('POST /report-by-month', async function reportMonth (req, res, params) {
@@ -95,6 +100,7 @@ hash.set('POST /report-by-month', async function reportMonth (req, res, params) 
     await db.connect()
     let token = await utils.extractToken(req)
     let user = await utils.verifyToken(token, config.secret)
+    console.log(user)
     let dataSms = []
      for (let i = 0; i <= 28; i++) {
       let fech = new Date(date.date)
