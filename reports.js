@@ -13,6 +13,30 @@ if (env === 'test') {
   db = new DbStub()
 }
 
+function exists (array, date) {
+  for (let i = 0; i < array.length; i++) {
+    if (array[i].date === date) {
+      return {
+        exists: true,
+        index: i
+      }
+      break
+    }
+  }
+  return {exists: false}
+}
+function sort(myArray){
+  let j = 0
+
+  for ( let i = 0; i < myArray.length; i ++) {
+    let temp = myArray[i]
+    for (j = i - 1; j >= 0 && myArray[j].date > temp.date; j--){
+      myArray[j + 1] = myArray[j]
+    }
+    myArray[j + 1] = temp
+  }
+  return myArray
+}
 hash.set('POST /report-index', async function reportIndex (req, res , params) {
   let data = await json(req)
   try {
@@ -151,29 +175,44 @@ hash.set('GET /:id/email', async function reportByCampaignEmail (req, res, param
   }
 })
 hash.set('POST /reportEmail-by-month', async function reportEmailMonth (req, res, params) {
-  let date = await json(req)
+  let data = await json(req)
+  let user = null
   try {
     await db.connect()
     let token = await utils.extractToken(req)
-    let user = await utils.verifyToken(token, config.secret)
-    let dataEmail = []
-     for (let i = 0; i <= 28; i++) {
-      let fech = new Date(date.date)
-      fech = fech.setDate(fech.getDate() - i)
-      fech = new Date(fech)
-      let day = fech.getDate()
-      let month = fech.getMonth()
-      let year = fech.getFullYear()
-      let midnight = Math.round(new Date(year, month, day, 23, 59, 59).getTime() /1000.0)
-      let dawn = Math.round(new Date(year, month, day).getTime() /1000.0 )
-      dataEmail.push(db.getReportEmailByDay(user.id, dawn, midnight))
-    }
-    let emails = await Promise.all(dataEmail)
-    send(res, 200, emails)
+    user = await utils.verifyToken(token, config.secret)
   }
   catch (e) {
-    console.error(e.message)
-    return send(res, 500,)
+    return send(res, 401, 'unAuthorized')
+  }
+  try  {
+    let report = await db.getReportEmailbyDate(user.id, data.initialDate, data.lastDate )
+    let response = []
+    for(let i = 0; i < report.length ; i++) {
+      let date = report[i].group.date
+      date = date.split("/")
+      let edate = (new Date(date[2], parseInt(date[1] - 1), date[0]).getTime() / 1000.0)
+      let comprobe  = exists(response, edate)
+      if (comprobe.exists) {
+        response[comprobe.index].info.push({
+          event: report[i].group.event,
+          amount: report[i].reduction
+        })
+      } else {
+        response.push({
+          date: edate,
+          info: [{
+            event: report[i].group.event,
+            amount: report[i].reduction
+          }]
+        })
+      }
+    }
+    let order = sort(response)
+    send(res, 200, order)
+  } catch (e) {
+    console.log(e.message)
+    return send(res, 500, {error: 'lo sentimos ocurrió un error, por favor intentalo mas tarde'})
   }
 })
 hash.set('POST /reportEmail-by-week', async function reportEmailWeek (req, res, params) {
