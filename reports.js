@@ -13,6 +13,7 @@ if (env === 'test') {
   db = new DbStub()
 }
 
+//funcion para comprobar si la ya existe la fecha
 function exists (array, date) {
   for (let i = 0; i < array.length; i++) {
     if (array[i].date === date) {
@@ -25,6 +26,7 @@ function exists (array, date) {
   }
   return {exists: false}
 }
+// ordanamiento por inserción
 function sort(myArray){
   let j = 0
 
@@ -37,6 +39,7 @@ function sort(myArray){
   }
   return myArray
 }
+
 hash.set('POST /report-index', async function reportIndex (req, res , params) {
   let data = await json(req)
   try {
@@ -67,6 +70,7 @@ hash.set('POST /report-index', async function reportIndex (req, res , params) {
     return send(res, 500,)
   }
 })
+
 hash.set('POST /:id/sms', async function find (req, res, params) {
   let id = params.id
   try {
@@ -87,6 +91,7 @@ hash.set('POST /:id/sms', async function find (req, res, params) {
     return send(res, 500, {error: e.message})
   }
 })
+
 hash.set('POST /report-week-sms', async function rWeek (req, res, params) {
   let date = await json(req)
   let data = []
@@ -116,8 +121,8 @@ hash.set('POST /report-week-sms', async function rWeek (req, res, params) {
     console.error(e.message)
     return send(res, 500, e.message)
   }
-
 })
+
 hash.set('POST /report-by-month', async function reportMonth (req, res, params) {
   let date = await json(req)
   try {
@@ -145,6 +150,7 @@ hash.set('POST /report-by-month', async function reportMonth (req, res, params) 
     return send(res, 500,)
   }
 })
+
 hash.set('GET /:id/email', async function reportByCampaignEmail (req, res, params) {
   let id = params.id
   let response = [{event: 'click', value : 0}, {event: 'open', value: 0}, {event: 'bounce', value: 0},
