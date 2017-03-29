@@ -87,10 +87,9 @@ hash.set('POST /send/test', async function testCampaing (req, res, params) {
   try {
     numbers[0] = `57${data.phone}`
     user = await db.find('users', user.id)
-    let priceSms = await db.find('smsPlans', user.smsPlanId)
-    if (user.balanceSms > priceSms.price) {
+    if (user.balanceSms >= 1 ) {
       let sendTest = await sms.sendTest(text, '333333', numbers)
-      let newBalance = (user.balanceSms - priceSms.price)
+      let newBalance = user.balanceSms - 1
       await db.update('users', user.id, {balanceSms: newBalance})
       send(res, 200, 'mensaje enviado')
     } else  {
