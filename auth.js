@@ -32,7 +32,7 @@ hash.set('POST /auth', async function authenticate (req, res, params) {
     let token = await utils.signToken(payload, config.secret)
     return send(res, 200, token)
   } else {
-    return send(res, 200, {info: `user is not active, please check your email`, email: data.email})
+    return send(res, 400, {info: `user is not active, please check your email`, email: data.email})
   }
 })
 hash.set('GET /recoverPassword', async function recoverPassword (req, res, params) {
