@@ -6,6 +6,8 @@ import Db from 'mepscloud-db'
 import DbStub from './test/stub/db'
 import config from './config'
 import utils from './lib/utils'
+import uuid from "uuid-base62"
+import mail from './lib/mail'
 // const env = process.env.NODE_ENV || 'test'
 const env = 'production'
 const hash = httpHash()
@@ -19,9 +21,11 @@ hash.set('POST /create', async function create (req, res, params) {
   await db.connect()
   let user = await json(req)
   user.active = false
+  user.tokenActivate = uuid.uuid()
   let result = await db.createUser(user)
   delete result.password
-  console.log(result)
+  let to = [{to :[{ email: email.email}]}]
+  await mail.sendSingle('welcome@mepscloud.com', 'hola', 'activata tu cuenta ya!', to)
   send(res, 201, result)
 })
 
@@ -35,6 +39,7 @@ hash.set('GET /:email', async function find (req, res, params) {
   delete result.company
   send(res, 200, result)
 })
+
 hash.set('GET /campaign-sended', async function getDataCampaignSended (req, res, params) {
   let user = null
   try {
@@ -52,6 +57,7 @@ hash.set('GET /campaign-sended', async function getDataCampaignSended (req, res,
     return send(res, 500, {error: `ocurrió un error ${e.message}`})
   }
 })
+
 export default async function main (req, res) {
   let  { method, url } = req
   let match = hash.get(`${method.toUpperCase()} ${url}`)

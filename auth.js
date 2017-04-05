@@ -35,15 +35,16 @@ hash.set('POST /auth', async function authenticate (req, res, params) {
     return send(res, 200, {info: `user is not active, please check your email`, email: data.email})
   }
 })
-hash.set('POST /recoverPassword', async function recoverPassword (req, res, params) {
+hash.set('GET /recoverPassword', async function recoverPassword (req, res, params) {
   await db.connect()
-  // let email = await json(req)
   let email = {
     email: 'ces1508@gmail.com'
   }
   try {
+    let token = uuid.uuid()
     let user = await db.findUserByEmail(email.email)
     if (user) {
+      await db.update('users', user.id, {tokenRestePassword: token})
       let to = [
         {
           to :[{
@@ -51,8 +52,8 @@ hash.set('POST /recoverPassword', async function recoverPassword (req, res, para
           }]
         }
       ]
-      mail.sendSingle('no-replay@mepscloud.com', `<p> para recuperar tu contraseña dale click al siguente link <a href = "https://mepscloud.com/reset/password/${uuid.uuid()}"> click </a> </p>`, 'recupera tu contraseña', to)
-      return send(res, 200, {data: `${uuid.uuid()}`})
+      mail.sendSingle('recoverPassword@mepscloud.com', `<p> para recuperar tu contraseña dale click al siguente link <a href = "https://mepscloud.com/reset/password/${token}"> click </a> </p>`, 'recupera tu contraseña', to)
+      return send(res, 200, {data: true})
     } else {
       return send(res, 404, {data: 'we cant find this user'})
     }
@@ -61,12 +62,8 @@ hash.set('POST /recoverPassword', async function recoverPassword (req, res, para
   }
 })
 
-hash.set('POST /activateAccount', async function activateAccoun (req, res, params) {
-  //let data = await json(req)
-  let data = {
-    token: '4fc0d653-e02f-4095-9f6d-7782479a9804'
-  }
-
+hash.set('GET /activateAccount/:token', async function activateAccoun (req, res, params) {
+ let token = params.token
   try {
     let activate = await db.activateAccount(data.token)
     if (activate) {

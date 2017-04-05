@@ -26,19 +26,6 @@ function exists (array, date) {
   }
   return {exists: false}
 }
-// ordanamiento por inserción
-function sort(myArray){
-  let j = 0
-
-  for ( let i = 0; i < myArray.length; i ++) {
-    let temp = myArray[i]
-    for (j = i - 1; j >= 0 && myArray[j].date > temp.date; j--){
-      myArray[j + 1] = myArray[j]
-    }
-    myArray[j + 1] = temp
-  }
-  return myArray
-}
 
 hash.set('POST /report-index', async function reportIndex (req, res , params) {
   let data = await json(req)
@@ -181,18 +168,19 @@ hash.set('GET /:id/email', async function reportByCampaignEmail (req, res, param
   }
 })
 hash.set('POST /reportEmail-by-month', async function reportEmailMonth (req, res, params) {
+  console.log('request')
   let data = await json(req)
   let user = null
-  try {
-    await db.connect()
-    let token = await utils.extractToken(req)
-    user = await utils.verifyToken(token, config.secret)
-  }
-  catch (e) {
-    return send(res, 401, 'unAuthorized')
-  }
+  // try {
+  //   await db.connect()
+  //   let token = await utils.extractToken(req)
+  //   user = await utils.verifyToken(token, config.secret)
+  // }
+  // catch (e) {
+  //   return send(res, 401, 'unAuthorized')
+  // }
   try  {
-    let report = await db.getReportEmailbyDate(user.id, data.initialDate, data.lastDate )
+    let report = await db.getReportEmailbyDate("3ebda0de-0d6a-42b0-8ad1-eb384ee2c447" , 1490391368, 1490996168)
     let response = []
     for(let i = 0; i < report.length ; i++) {
       let date = report[i].group.date
@@ -214,7 +202,7 @@ hash.set('POST /reportEmail-by-month', async function reportEmailMonth (req, res
         })
       }
     }
-    let order = sort(response)
+    let order = utils.sort(response)
     send(res, 200, order)
   } catch (e) {
     console.log(e.message)
