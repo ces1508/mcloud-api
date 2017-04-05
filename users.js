@@ -31,12 +31,15 @@ hash.set('POST /create', async function create (req, res, params) {
 
 hash.set('GET /:email', async function find (req, res, params) {
   let email = params.email
-  let result = await db.findUserByEmail(email)
-  if (!result) {
+  let user = await db.findUserByEmail(email)
+  if (!user.active) {
+    return send(res, 401, {error: 'user is not active'})
+  }
+  if (!user) {
     return send(res, 404, {error: false})
   }
-  delete result.password
-  delete result.company
+  delete user.password
+  delete user.company
   send(res, 200, result)
 })
 
