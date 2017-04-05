@@ -38,7 +38,7 @@ hash.set('GET /:email', async function find (req, res, params) {
    if (user.active) {
     delete user.password
     delete user.company
-    send(res, 200, result)
+    send(res, 200, user)
   } else {
     return send(res, 401, {error: 'user is not active'})
   }
