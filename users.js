@@ -32,15 +32,16 @@ hash.set('POST /create', async function create (req, res, params) {
 hash.set('GET /:email', async function find (req, res, params) {
   let email = params.email
   let user = await db.findUserByEmail(email)
-  if (!user.active) {
-    return send(res, 401, {error: 'user is not active'})
-  }
   if (!user) {
     return send(res, 404, {error: false})
   }
-  delete user.password
-  delete user.company
-  send(res, 200, result)
+   if (user.active) {
+    delete user.password
+    delete user.company
+    send(res, 200, result)
+  } else {
+    return send(res, 401, {error: 'user is not active'})
+  }
 })
 
 hash.set('GET /campaign-sended', async function getDataCampaignSended (req, res, params) {
