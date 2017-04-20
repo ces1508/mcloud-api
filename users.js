@@ -62,6 +62,56 @@ hash.set('GET /campaign-sended', async function getDataCampaignSended (req, res,
   }
 })
 
+hash.set('PATCH /profile', async function updateUser (req, res, params) {
+  let user = null
+  let data = await json(req)
+  let newData = {}
+  if (data.password) {
+    delete data.password
+  }
+  if (data.empresa) {
+    newData.empresa = data.empresa
+  }
+  if (data.username) {
+    newData.username = data.username
+  }
+
+  try {
+    let token = await utils.extractToken(req)
+    user = await utils.verifyToken(token, config.secret)
+  } catch (e) {
+    return send(res, 401, 'unAuthorizate')
+  }
+
+   let updated = await db.update('users', user.id, newData)
+  return send(res, 200, {error: false, updated: true})
+
+})
+
+hash.set('PATCH /update-password', async function updatePassword (req, res, params) {
+  let data = await json(req)
+  let user = null
+  let oldPassword = utils.sha256(data.oldPassword)
+
+  try {
+    let token = await utils.extractToken(req)
+    user = await utils.verifyToken(token, config.secret)
+    let userDb = await db.find('users', user.id)
+
+    if (userDb.password === oldPassword) {
+
+      let newPassword = utils.sha256(data.newPassword)
+      await db.update('users', user.id, {password: newPassword})
+
+      return send(res, 200, 'contraseña actualizada')
+    } else {
+      return send(res, 401, 'unAuthorizate')
+    }
+  } catch (e) {
+    return send(res, 500, {error: e.message})
+  }
+})
+
 export default async function main (req, res) {
   let  { method, url } = req
   let match = hash.get(`${method.toUpperCase()} ${url}`)
