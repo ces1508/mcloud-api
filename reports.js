@@ -13,20 +13,6 @@ if (env === 'test') {
   db = new DbStub()
 }
 
-//funcion para comprobar si la ya existe la fecha
-function exists (array, date) {
-  for (let i = 0; i < array.length; i++) {
-    if (array[i].date === date) {
-      return {
-        exists: true,
-        index: i
-      }
-      break
-    }
-  }
-  return {exists: false}
-}
-
 hash.set('POST /report-index', async function reportIndex (req, res , params) {
   let data = await json(req)
   try {
@@ -58,6 +44,27 @@ hash.set('POST /report-index', async function reportIndex (req, res , params) {
   }
 })
 
+hash.set('POST /report-sms', async function reportDateSms (req, res) {
+  let data = await json(req)
+  let user = null
+
+  if (data.initialDate && data.lastDate) {
+    try {
+      let token = await utils.extractToken(req)
+      user = await utils.verifyToken(token, config.secret)
+    } catch (e) {
+      console.error(e.message)
+      return send(res, 401, 'unAuthorized')
+    }
+    let report = await db.getReportSmsbyDate(user.id, data.initialDate, data.lastDate)
+    let response = utils.parseReport(report)
+    response = utils.sort(response)
+    send(res, 200,  response)
+  } else {
+    send(res, 400, {error: 'debes enviar los parametros initialDate y lastDate'})
+  }
+ })
+
 hash.set('POST /:id/sms', async function find (req, res, params) {
   let id = params.id
   try {
@@ -79,64 +86,8 @@ hash.set('POST /:id/sms', async function find (req, res, params) {
   }
 })
 
-hash.set('POST /report-week-sms', async function rWeek (req, res, params) {
-  let date = await json(req)
-  let data = []
-  let user = null
-  try {
-    let token = await utils.extractToken(req)
-    user = await utils.verifyToken(token, config.secret)
-  } catch (e) {
-    return send(res, 401, 'unAuthorized')
-  }
-  try {
-    for (let i = 0; i <= 6; i++) {
-      let fech = new Date(date.date)
-      fech = fech.setDate(fech.getDate() - i)
-      fech = new Date(fech)
-      let day = fech.getDate()
-      let month = fech.getMonth()
-      let year = fech.getFullYear()
-      let midnight = Math.round(new Date(year, month, day, 23, 59, 59).getTime() /1000.0)
-      let dawn = Math.round(new Date(year, month, day).getTime() /1000.0 )
-      data.push(db.getReportSmsByDay(user.id, dawn, midnight))
-    }
-    let response = await Promise.all(data)
-    send(res, 200, response)
-  }
-  catch (e) {
-    console.error(e.message)
-    return send(res, 500, e.message)
-  }
-})
 
-hash.set('POST /report-by-month', async function reportMonth (req, res, params) {
-  let date = await json(req)
-  try {
-    await db.connect()
-    let token = await utils.extractToken(req)
-    let user = await utils.verifyToken(token, config.secret)
-    console.log(user)
-    let dataSms = []
-     for (let i = 0; i <= 28; i++) {
-      let fech = new Date(date.date)
-      fech = fech.setDate(fech.getDate() - i)
-      fech = new Date(fech)
-      let day = fech.getDate()
-      let month = fech.getMonth()
-      let year = fech.getFullYear()
-      let midnight = Math.round(new Date(year, month, day, 23, 59, 59).getTime() /1000.0)
-      let dawn = Math.round(new Date(year, month, day).getTime() /1000.0 )
-      dataSms.push(db.getReportSmsByDay(user.id, dawn, midnight))
-    }
-    let sms = await Promise.all(dataSms)
-    send(res, 200, sms)
-  }
-  catch (e) {
-    console.error(e.message)
-    return send(res, 500,)
-  }
-})
+
 
 hash.set('GET /:id/email', async function reportByCampaignEmail (req, res, params) {
   let id = params.id
@@ -168,47 +119,32 @@ hash.set('GET /:id/email', async function reportByCampaignEmail (req, res, param
   }
 })
 hash.set('POST /reportEmail-by-month', async function reportEmailMonth (req, res, params) {
-  console.log('request')
   let data = await json(req)
-  let user = null
-  // try {
-  //   await db.connect()
-  //   let token = await utils.extractToken(req)
-  //   user = await utils.verifyToken(token, config.secret)
-  // }
-  // catch (e) {
-  //   return send(res, 401, 'unAuthorized')
-  // }
-  try  {
-    let report = await db.getReportEmailbyDate("3ebda0de-0d6a-42b0-8ad1-eb384ee2c447" , 1490391368, 1490996168)
-    let response = []
-    for(let i = 0; i < report.length ; i++) {
-      let date = report[i].group.date
-      date = date.split("/")
-      let edate = (new Date(date[2], parseInt(date[1] - 1), date[0]).getTime() / 1000.0)
-      let comprobe  = exists(response, edate)
-      if (comprobe.exists) {
-        response[comprobe.index].info.push({
-          event: report[i].group.event,
-          amount: report[i].reduction
-        })
-      } else {
-        response.push({
-          date: edate,
-          info: [{
-            event: report[i].group.event,
-            amount: report[i].reduction
-          }]
-        })
-      }
+  if (data.initialDate && data.lastDate) {
+
+    let user = null
+    try {
+      await db.connect()
+      let token = await utils.extractToken(req)
+      user = await utils.verifyToken(token, config.secret)
     }
-    let order = utils.sort(response)
-    send(res, 200, order)
-  } catch (e) {
-    console.log(e.message)
-    return send(res, 500, {error: 'lo sentimos ocurrió un error, por favor intentalo mas tarde'})
+    catch (e) {
+      return send(res, 401, 'unAuthorized')
+    }
+    try  {
+      let report = await db.getReportEmailbyDate(user.id , data.initialDate, data.lastDate)
+      let response = utils.parseReport(report)
+      let order = utils.sort(response)
+      send(res, 200, order)
+    } catch (e) {
+      console.log(e.message)
+      return send(res, 500, {error: 'lo sentimos ocurrió un error, por favor intentalo mas tarde'})
+    }
+  } else {
+    return send(res, 400, {error: 'debes enviar los parametros initDay ay lastDate en formato Epoch'})
   }
 })
+
 hash.set('POST /reportEmail-by-week', async function reportEmailWeek (req, res, params) {
   let date = await json(req)
   try {
