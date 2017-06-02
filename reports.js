@@ -87,8 +87,6 @@ hash.set('POST /:id/sms', async function find (req, res, params) {
 })
 
 
-
-
 hash.set('GET /:id/email', async function reportByCampaignEmail (req, res, params) {
   let id = params.id
   let response = [{event: 'click', value : 0}, {event: 'open', value: 0}, {event: 'bounce', value: 0},
@@ -118,6 +116,7 @@ hash.set('GET /:id/email', async function reportByCampaignEmail (req, res, param
     return send(res, 500, {error: e.message})
   }
 })
+
 hash.set('POST /reportEmail-by-month', async function reportEmailMonth (req, res, params) {
   let data = await json(req)
   if (data.initialDate && data.lastDate) {
@@ -145,32 +144,7 @@ hash.set('POST /reportEmail-by-month', async function reportEmailMonth (req, res
   }
 })
 
-hash.set('POST /reportEmail-by-week', async function reportEmailWeek (req, res, params) {
-  let date = await json(req)
-  try {
-    await db.connect()
-    let token = await utils.extractToken(req)
-    let user = await utils.verifyToken(token, config.secret)
-    let dataEmail = []
-     for (let i = 0; i <= 6; i++) {
-      let fech = new Date(date.date)
-      fech = fech.setDate(fech.getDate() - i)
-      fech = new Date(fech)
-      let day = fech.getDate()
-      let month = fech.getMonth()
-      let year = fech.getFullYear()
-      let midnight = Math.round(new Date(year, month, day, 23, 59, 59).getTime() /1000.0)
-      let dawn = Math.round(new Date(year, month, day).getTime() /1000.0 )
-      dataEmail.push(db.getReportEmailByDay(user.id, dawn, midnight))
-    }
-    let emails = await Promise.all(dataEmail)
-    send(res, 200, emails)
-  }
-  catch (e) {
-    console.error(e.message)
-    return send(res, 500,)
-  }
-})
+
 export default async function main (req, res) {
   let  { method, url } = req
   let match = hash.get(`${method.toUpperCase()} ${url}`)

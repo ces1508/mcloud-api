@@ -23,7 +23,7 @@ hash.set('POST /auth', async function authenticate (req, res, params) {
     return send(res, 401, { error: 'invalid crendentials' })
   }
   let data = await db.findUserByEmail(user.email)
-  if (data.active) {
+  // if (data.active) {
     let payload = {
       email: data.email,
       name: data.username,
@@ -31,9 +31,9 @@ hash.set('POST /auth', async function authenticate (req, res, params) {
     }
     let token = await utils.signToken(payload, config.secret)
     return send(res, 200, token)
-  } else {
-    return send(res, 400, {info: `user is not active, please check your email`, email: data.email})
-  }
+  // } else {
+  //   return send(res, 400, {info: `user is not active, please check your email`, email: data.email})
+  // }
 })
 hash.set('GET /recoverPassword', async function recoverPassword (req, res, params) {
   await db.connect()
