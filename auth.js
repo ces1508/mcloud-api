@@ -36,19 +36,16 @@ hash.set('POST /auth', async function authenticate (req, res, params) {
   // }
 })
 hash.set('GET /recoverPassword', async function recoverPassword (req, res, params) {
-  await db.connect()
-  let email = {
-    email: 'ces1508@gmail.com'
-  }
+  let data = await json(req)
   try {
     let token = uuid.uuid()
-    let user = await db.findUserByEmail(email.email)
+    let user = await db.findUserByEmail(data.email)
     if (user) {
       await db.update('users', user.id, {tokenRestePassword: token})
       let to = [
         {
           to :[{
-            email: email.email
+            email: data.email
           }]
         }
       ]
