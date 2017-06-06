@@ -35,7 +35,7 @@ hash.set('POST /auth', async function authenticate (req, res, params) {
   //   return send(res, 400, {info: `user is not active, please check your email`, email: data.email})
   // }
 })
-hash.set('GET /recoverPassword', async function recoverPassword (req, res, params) {
+hash.set('POST /recoverPassword', async function recoverPassword (req, res, params) {
   let data = await json(req)
   try {
     let token = uuid.uuid()
