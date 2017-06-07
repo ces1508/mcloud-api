@@ -35,13 +35,13 @@ hash.set('GET /:email', async function find (req, res, params) {
   if (!user) {
     return send(res, 404, {error: false})
   }
-   if (user.active) {
+  //  if (user.active) {
     delete user.password
     delete user.company
     send(res, 200, user)
-  } else {
-    return send(res, 401, {error: 'user is not active'})
-  }
+  // } else {
+  //   return send(res, 401, {error: 'user is not active'})
+  // }
 })
 
 hash.set('GET /campaign-sended', async function getDataCampaignSended (req, res, params) {
