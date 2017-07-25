@@ -33,7 +33,6 @@ hash.set('POST /send', async function sendSms (req, res, params) {
   try {
     user = await db.find('users', user.id)
     amount = await db.countContacts(campaing.databaseId)
-    console.log(amount)
     if (user.balanceSms < amount) {
       return send(res, 400, {error: 'no tienes saldo suficiente para enviar esta campaña'})
     }
@@ -85,7 +84,7 @@ hash.set('POST /send/test', async function testCampaing (req, res, params) {
     return send(res, 401, 'unAuthorized')
   }
   try {
-    numbers[0] = `57${data.phone}`
+    numbers[0] = (`57${data.phone.replace(' ','')}`)
     user = await db.find('users', user.id)
     if (user.balanceSms >= 1 ) {
       let sendTest = await sms.sendTest(text, '333333', numbers)
